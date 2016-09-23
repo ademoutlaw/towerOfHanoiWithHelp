@@ -5,10 +5,10 @@
  */
 package controller;
 
-import model.Move;
+import model.Movement;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import model.Temp;
+import model.Command;
 import view.GameFrame;
 import view.StackPanel;
 
@@ -18,10 +18,10 @@ import view.StackPanel;
  */
 public class Controller implements MouseListener  {
  
-    private final Temp temp;
+    private final Command temp;
     private GameFrame frame;
 
-    public Controller(Temp temp, GameFrame frame) {
+    public Controller(Command temp, GameFrame frame) {
         this.temp = temp;
 
         this.frame = frame;
@@ -35,7 +35,7 @@ public class Controller implements MouseListener  {
     public void mouseClicked(MouseEvent e) {
         System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@");
         
-        temp.setTemp(frame.getPanelName(e));
+        temp.setMove(frame.getPanelName(e));
         
         frame.updateGameFrame(getMoveState(temp.getMoveState()), 
                 temp.getMoveFrom(), 
@@ -70,11 +70,11 @@ public class Controller implements MouseListener  {
 
     private int getMoveState(int moveState) {
         switch (moveState){
-            case Move.MOVE:
+            case Movement.MOVE:
                 return StackPanel.MOVE;
-            case Move.DISELECT:
+            case Movement.DISELECT:
                 return StackPanel.DISELECT;
-            case Move.SELECT:
+            case Movement.SELECT:
                 return StackPanel.SELECT;
         }
         return StackPanel.DISELECT;
