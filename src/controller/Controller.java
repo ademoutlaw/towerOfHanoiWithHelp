@@ -10,7 +10,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import model.Command;
 import view.GameFrame;
-import view.StackPanel;
+import view.TowerPanel;
 
 /**
  *
@@ -32,22 +32,15 @@ public class Controller implements MouseListener  {
     
     
     @Override
-    public void mouseClicked(MouseEvent e) {
-        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@");
-        
+    public void mouseClicked(MouseEvent e) {        
         temp.setMove(frame.getPanelName(e));
-        
-        frame.updateGameFrame(getMoveState(temp.getMoveState()), 
+        frame.updateGameFrame(getMovementState(temp.getMoveState()), 
                 temp.getMoveFrom(), 
                 temp.getMoveTo(), 
                 temp.getMoveDisc(), 
-                temp.getStackA(), 
-                temp.getStackB(), 
-                temp.getStackC());
-        
-        //stackPanelA.updateStackPanel(stackA.getDiscksSizes(),getStatus(move),move.getFrom(),move.getTo(),move.getDisck());
-        //stackPanelB.updateStackPanel(stackB.getDiscksSizes(),getStatus(move),move.getFrom(),move.getTo(),move.getDisck());
-        //stackPanelC.updateStackPanel(stackC.getDiscksSizes(),getStatus(move),move.getFrom(),move.getTo(),move.getDisck());
+                temp.getTowerA(), 
+                temp.getTowerB(), 
+                temp.getTowerC());
     }
 
     @Override
@@ -66,22 +59,16 @@ public class Controller implements MouseListener  {
     public void mouseExited(MouseEvent e) {
     }
 
-    
-
-    private int getMoveState(int moveState) {
+    private int getMovementState(int moveState) {
         switch (moveState){
             case Movement.MOVE:
-                return StackPanel.MOVE;
+                return TowerPanel.MOVE;
             case Movement.DISELECT:
-                return StackPanel.DISELECT;
+                return TowerPanel.DISELECT;
             case Movement.SELECT:
-                return StackPanel.SELECT;
+                return TowerPanel.SELECT;
         }
-        return StackPanel.DISELECT;
+        return TowerPanel.DISELECT;
     }
-
-    
-
-    
-    
+        
 }

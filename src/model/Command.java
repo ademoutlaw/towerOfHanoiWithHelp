@@ -17,17 +17,17 @@ public class Command {
     private Tower from;
     private char fromName;
     private boolean hasDisck;
-    private final Tower stackA;
-    private final Tower stackB;
-    private final Tower stackC;
+    private final Tower towerA;
+    private final Tower towerB;
+    private final Tower towerC;
     private Movement move;
     private int size;
 
     public Command(int size) {
         this.size=size;
-        stackA = new Tower(size);
-        stackB = new Tower();
-        stackC = new Tower();
+        towerA = new Tower(size);
+        towerB = new Tower();
+        towerC = new Tower();
     }
 
     public void setMove(char stackName){
@@ -35,23 +35,23 @@ public class Command {
         
     }
     
-    public ArrayList<Integer> getStackA(){
-        return stackA.getStack();
+    public ArrayList<Integer> getTowerA(){
+        return towerA.getStack();
         
     }
     
-    public ArrayList<Integer> getStackB(){
-        return stackB.getStack();
+    public ArrayList<Integer> getTowerB(){
+        return towerB.getStack();
         
     }
     
-    public ArrayList<Integer> getStackC(){
-        return stackC.getStack();
+    public ArrayList<Integer> getTowerC(){
+        return towerC.getStack();
         
     }
     
     private Movement getMove(char stackName){
-        Tower stack = getStack(stackName);
+        Tower stack = getTower(stackName);
         if(hasDisck){
             hasDisck=false;
             if(stack.addDisk(disck))
@@ -67,14 +67,14 @@ public class Command {
         return new Movement(Movement.MOVE,fromName,fromName,0);   
     }
     
-    private Tower getStack(char panelName) {
+    private Tower getTower(char panelName) {
         switch(panelName){
             case 'A':
-                return stackA;
+                return towerA;
             case 'B':
-                return stackB;
+                return towerB;
             case 'C':
-                return stackC;
+                return towerC;
         }
         System.out.println("#####"+panelName);
         return null;

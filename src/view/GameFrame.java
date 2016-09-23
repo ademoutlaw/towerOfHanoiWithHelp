@@ -18,9 +18,9 @@ import javax.swing.JPanel;
  * @author outlaw
  */
 public class GameFrame extends JFrame {
-    private final StackPanel stackA;
-    private final StackPanel stackB;
-    private final StackPanel stackC;
+    private final TowerPanel stackA;
+    private final TowerPanel stackB;
+    private final TowerPanel stackC;
 
    
 
@@ -28,9 +28,9 @@ public class GameFrame extends JFrame {
         
         super("tower of hanoi!");
         
-        stackA = new StackPanel('A');
-        stackB = new StackPanel('B');
-        stackC = new StackPanel('C');
+        stackA = new TowerPanel('A');
+        stackB = new TowerPanel('B');
+        stackC = new TowerPanel('C');
         
         
         JPanel jPanel = new JPanel();
@@ -50,7 +50,7 @@ public class GameFrame extends JFrame {
         
     }
     public char getPanelName(MouseEvent e){
-        return ((StackPanel)e.getSource()).getPanelName();
+        return ((TowerPanel)e.getSource()).getPanelName();
         
     }
     public void updateGameFrame(int move,char from,char to,int disc,

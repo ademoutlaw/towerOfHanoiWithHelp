@@ -5,9 +5,12 @@
  */
 package view;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
@@ -19,7 +22,7 @@ import javax.swing.Timer;
  *
  * @author outlaw
  */
-public class StackPanel extends JPanel{
+public class TowerPanel extends JPanel{
     
     private static final int STACK_WIDTH =200;
     public static final int MOVE=0;
@@ -34,14 +37,9 @@ public class StackPanel extends JPanel{
     private int disck;
     private boolean selected;
     private int posY;
-    private int posX;
     private final char name;
     private Timer timer;
-    
-    private int stepX;
-    private int stepY;
-    private boolean moved;
-    
+        
     private static int movedDisckX;
     private static int movedDisckY;
     private static boolean toMove;
@@ -52,25 +50,15 @@ public class StackPanel extends JPanel{
     private static int horizontal;
     private static int finishY;
     private static int finishX;
+             
     
-    
-    
-    
-    
-    
-    
-    protected StackPanel(char name) {
-        this(Color.orange, name);
-        
-    }
-
-    protected StackPanel(Color red, char name) {
+    protected TowerPanel(char name) {
         //isSet=true;
         this.name = name;
         stack = new ArrayList();
-        setBackground(red);
+        setOpaque(false);
         setPreferredSize(new Dimension(220,350));
-        timer = new Timer(1, new ActionListener(){
+        timer = new Timer(20, new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e) {
                 updateMovedDisck();
@@ -92,17 +80,18 @@ public class StackPanel extends JPanel{
 
     private void paintStack(Graphics g) {
         g.setColor(Color.black);
-        g.fillRect(110, 10, 5, 300);
+        g.fillRect(110, 40, 5, 300);
         g.fillRect(10, 310, 200, 30);
-        g.setColor(Color.white);
-        g.drawString(""+name, 100, 320);
+        g.setColor(Color.yellow);
+        g.setFont(new Font(Font.SANS_SERIF,Font.BOLD,20));
+        g.drawString(""+name, 107, 330);
                
     }
     
     private void paintDiscks(Graphics g){
         posY =290;
         int last=0;
-        g.setColor(Color.blue); 
+        g.setColor(Color.blue.darker()); 
         if(toMove && name==toStack){
             last=1;
         }
@@ -118,17 +107,18 @@ public class StackPanel extends JPanel{
     
     private void paintSelectedDisck(Graphics g){
         if(selected){
+            
             g.fillRoundRect(posX(disck), posY-4, disck*10, 18,10,10);
-            g.setColor(Color.yellow);            
-            g.drawRoundRect(posX(disck), posY-4, disck*10, 18,10,10);
+            g.setColor(Color.blue); 
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setStroke(new BasicStroke((float) 1.5));
+            g2.drawRoundRect(posX(disck), posY-4, disck*10, 18,10,10);
         }
     }
     
     private void paintMovedDisck(Graphics g){
-        //System.out.println(toMove);
         if(toMove && name == currentStack){
-            g.setColor(Color.pink);
-            //System.out.println("stack:"+name+" ==> x= "+movedDisckX+ " y= "+movedDisckY+" disk= "+movedDisck);
+            g.setColor(Color.blue.darker());
             g.fillRoundRect(movedDisckX, movedDisckY, movedDisck*10,18,10,10);
         }
     }
@@ -194,10 +184,10 @@ public class StackPanel extends JPanel{
  
     protected void updateStackPanel(ArrayList<Integer> discksSizes, int status, char from, char to, int disck) {        
         switch(status){
-            case StackPanel.MOVE:
+            case TowerPanel.MOVE:
                 drawMove(from,to,disck);
                 break;
-            case StackPanel.SELECT:
+            case TowerPanel.SELECT:
                 drawSelected(from,disck);
                 break;
             default:
@@ -210,26 +200,19 @@ public class StackPanel extends JPanel{
 
     private void drawMove(char from, char to, int disck) {
         selected=false; 
-        
-        System.out.println("satck : "+name+" => from : " +from+ " to : "+to+" disck : "+disck);
         if(from!=to){
             timer.start();
             if(name==from){
-               // System.out.println(disck);
                 movedDisck=disck;
                 toMove=true;
-                //timer.start();
                 direction=UP;
-                movedDisckX=posX;
+                movedDisckX=posX(disck);
                 movedDisckY=posY;
                 currentStack=from;
                 horizontal = from>to?LEFT:RIGHT;
                 toStack=to;
-                System.out.println("stack:"+name+" ==> x= "+movedDisckX+ " y= "+movedDisckY+" disk= "+movedDisck);
-            }else if(name == to){
-                System.out.println("stack:"+name+" ==> x= "+movedDisckX+ " y= "+movedDisckY+" disk= "+movedDisck);
-                
-                finishX = posX(movedDisck);
+            }else if(name == to){                
+                finishX = posX(disck);
                 finishY = posY;
             }     
         }
@@ -238,12 +221,10 @@ public class StackPanel extends JPanel{
     private void drawSelected(char from, int disck) {
         this.disck=disck;
         this.selected=this.name==from;
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     private int posX(int disck) {   
-        posX= 112-disck*5;
-        return posX;
+        return 112-disck*5;
     }
     
 }

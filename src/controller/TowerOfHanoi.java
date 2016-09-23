@@ -3,7 +3,7 @@ package controller;
 import java.awt.Color;
 import model.Command;
 import view.GameFrame;
-import view.StackPanel;
+import view.TowerPanel;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
