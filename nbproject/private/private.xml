@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?xml version="1.0" encoding="UTF-8"?>
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
@@ -11,3 +12,18 @@
         </group>
     </open-files>
 </project-private>
+=======
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/D:/mpv/GoogleDrive/WorkSpace/NetBeansProjects/JAVA/TowerOfHanoi/src/model/Disk.java</file>
+            <file>file:/D:/mpv/GoogleDrive/WorkSpace/NetBeansProjects/JAVA/TowerOfHanoi/src/controller/TowerOfHanoi.java</file>
+            <file>file:/D:/mpv/GoogleDrive/WorkSpace/NetBeansProjects/JAVA/TowerOfHanoi/src/model/Stack.java</file>
+            <file>file:/D:/mpv/GoogleDrive/WorkSpace/NetBeansProjects/JAVA/TowerOfHanoi/src/view/StackPanel.java</file>
+            <file>file:/D:/mpv/GoogleDrive/WorkSpace/NetBeansProjects/JAVA/TowerOfHanoi/src/view/GameFrame.java</file>
+        </group>
+    </open-files>
+</project-private>
+>>>>>>> 345a305dc6e6f9fa62c849f2c87d5d0d823dbfcf
