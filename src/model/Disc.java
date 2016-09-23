@@ -9,13 +9,14 @@ package model;
  *
  * @author outlaw
  */
-class Disk {
-
-    public Disk(int i) {
+public class Disc {
+    private int size;
+    public Disc(int i) {
+        size=i;
     }
 
-    int getSize() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public int getSize() {
+        return size;
     }
     
 }
