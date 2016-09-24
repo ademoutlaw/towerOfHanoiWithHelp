@@ -34,9 +34,20 @@ public class Command {
 
     public void setMove(char stackName){
         move = getMove(stackName);
-        stack.addMovement(move);  
+        if(move.getState()==Movement.MOVE)
+            stack.addMovement(move);  
     }
-        
+    
+    public void undo(){
+        move = stack.undo();
+        getTower(move.getFrom())
+                .addDisk(
+                        getTower(move.getTo())
+                                .getLasDisck()
+                );
+        reverseMove();
+    }
+    
     public ArrayList<Integer> getTowerA(){
         return towerA.getStack();
         
@@ -99,5 +110,9 @@ public class Command {
 
     public int getSize() {
         return size;
+    }
+
+    private void reverseMove() {
+        move = new Movement(Movement.MOVE,move.getTo(),move.getFrom(),move.getDisc());
     }
 }

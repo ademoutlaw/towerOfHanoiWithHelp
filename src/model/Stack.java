@@ -13,8 +13,8 @@ import java.util.ArrayList;
  */
 public class Stack {
 
-    private ArrayList<Movement> undo;
-    private ArrayList<Movement> redo;
+    private final ArrayList<Movement> undo;
+    private final ArrayList<Movement> redo;
 
     public Stack() {
         this.undo = new ArrayList();
@@ -25,6 +25,10 @@ public class Stack {
     
     protected void addMovement(Movement move) {
         undo.add(move);
+    }
+
+    Movement undo() {
+        return undo.get(undo.size()-1);
     }
     
 }

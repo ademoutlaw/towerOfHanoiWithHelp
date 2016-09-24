@@ -36,6 +36,14 @@ public class Controller implements MouseListener  {
     public void mouseClicked(MouseEvent e) { 
         if(SwingUtilities.isRightMouseButton(e)){
             System.out.println("right");
+            command.undo();
+        frame.updateGameFrame(getMovementState(command.getMoveState()), 
+                command.getMoveFrom(), 
+                command.getMoveTo(), 
+                command.getMoveDisc(), 
+                command.getTowerA(), 
+                command.getTowerB(), 
+                command.getTowerC());
             return;
         }
         command.setMove(frame.getPanelName(e));
