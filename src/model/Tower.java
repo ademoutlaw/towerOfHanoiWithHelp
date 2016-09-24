@@ -28,8 +28,6 @@ public class Tower extends ArrayList<Disc>{
     }
     
     protected boolean addDisk(Disc disk){
-        System.out.print(disk+" ?: ");
-        System.out.println(disk.getSize()+" ?: "+lastDiskSize+" ?: "+(lastDiskSize<disk.getSize()));
         if(lastDiskSize>disk.getSize()||lastDiskSize==0){
             lastDiskSize=disk.getSize();
             return add(disk);

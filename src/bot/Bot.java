@@ -5,10 +5,21 @@
  */
 package bot;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author outlaw
  */
 public class Bot {
     
+    private final int TOWER_A = 0;
+    private final int TOWER_B = 1;
+    private final int TOWER_C = 2;
+    
+    private int from;
+    private int to;
+    private int disc;
+    
+    private ArrayList<Integer>  [] grid;
 }

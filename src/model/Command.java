@@ -22,9 +22,11 @@ public class Command {
     private final Tower towerC;
     private Movement move;
     private int size;
+    private final Stack stack;
 
     public Command(int size) {
         this.size=size;
+        stack = new Stack();
         towerA = new Tower(size);
         towerB = new Tower();
         towerC = new Tower();
@@ -32,9 +34,9 @@ public class Command {
 
     public void setMove(char stackName){
         move = getMove(stackName);
-        
+        stack.addMovement(move);  
     }
-    
+        
     public ArrayList<Integer> getTowerA(){
         return towerA.getStack();
         
@@ -76,7 +78,6 @@ public class Command {
             case 'C':
                 return towerC;
         }
-        System.out.println("#####"+panelName);
         return null;
     }
 

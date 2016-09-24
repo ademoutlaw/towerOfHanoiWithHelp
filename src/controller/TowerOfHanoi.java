@@ -21,12 +21,9 @@ public class TowerOfHanoi {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        
-        
-        new Controller(new Command(9), new GameFrame());
-        //MyMouseListener listener = new MyMouseListener(stackA,stackB,stackC,9);
-        
-
+               
+        new Controller(new Command(15), new GameFrame());
+        //2*T(n-1) +1.
     }
     
 }

@@ -58,15 +58,12 @@ public class TowerPanel extends JPanel{
         stack = new ArrayList();
         setOpaque(false);
         setPreferredSize(new Dimension(220,350));
-        timer = new Timer(20, new ActionListener(){
+        timer = new Timer(8, new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e) {
                 updateMovedDisck();
             }          
         });
-        //timer.setInitialDelay(pause);
-        //timer.start(); 
-        
     }
 
     @Override
