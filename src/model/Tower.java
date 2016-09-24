@@ -61,14 +61,20 @@ public class Tower extends ArrayList<Disc>{
         return disck.getSize()<lastDiskSize;
     }
 
-    ArrayList<Integer> getStack() {
+    protected ArrayList<Integer> getStack() {
         ArrayList a= new ArrayList();
         for(Disc disc:this){
             a.add(disc.getSize());
         }
         return a;
     }
-   
+
+    @Override
+    public String toString() {
+        return "Tower{" + "lastDiskSize=" + lastDiskSize + '}';
+    }
+    
+    
 
     
     

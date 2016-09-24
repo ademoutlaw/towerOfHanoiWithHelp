@@ -38,14 +38,37 @@ public class Command {
             stack.addMovement(move);  
     }
     
-    public void undo(){
-        move = stack.undo();
-        getTower(move.getFrom())
-                .addDisk(
-                        getTower(move.getTo())
-                                .getLasDisck()
-                );
-        reverseMove();
+    public boolean undo(){
+        if(hasDisck){
+            hasDisck=false;
+            from.add(disck);
+        }
+        if((move = stack.undo())!=null){
+            getTower(move.getFrom())
+                    .addDisk(
+                            getTower(move.getTo())
+                                    .getLasDisck()
+                    );
+            reverseMove();
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean redo() {
+        if(hasDisck){
+            hasDisck=false;
+            from.add(disck);
+        }
+        if((move = stack.redo())!=null){
+            getTower(move.getTo())
+                    .addDisk(
+                            getTower(move.getFrom())
+                                    .getLasDisck()
+                    );
+            return true;
+        }
+        return false;
     }
     
     public ArrayList<Integer> getTowerA(){
@@ -115,4 +138,14 @@ public class Command {
     private void reverseMove() {
         move = new Movement(Movement.MOVE,move.getTo(),move.getFrom(),move.getDisc());
     }
+
+    public boolean hadUndo() {
+        return stack.hadUndo();
+    }
+
+    public boolean hadRedo() {
+        return stack.hadRedo();
+    }
+
+    
 }

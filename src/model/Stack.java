@@ -25,10 +25,31 @@ public class Stack {
     
     protected void addMovement(Movement move) {
         undo.add(move);
+        redo.clear();
     }
 
-    Movement undo() {
-        return undo.get(undo.size()-1);
+    protected Movement undo() { 
+        if(undo.isEmpty())
+            return null;
+        Movement move =undo.remove(undo.size()-1);
+        redo.add(move);
+        return move;
+    }
+    
+    protected Movement redo() { 
+        if(redo.isEmpty())
+            return null;
+        Movement move =redo.remove(redo.size()-1);
+        undo.add(move);
+        return move;
+    }
+
+    protected boolean hadUndo() {
+        return !undo.isEmpty();
+    }
+
+    protected boolean hadRedo() {
+        return !redo.isEmpty();
     }
     
 }

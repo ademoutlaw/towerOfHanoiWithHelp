@@ -5,6 +5,8 @@
  */
 package controller;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import model.Movement;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -17,7 +19,7 @@ import view.TowerPanel;
  *
  * @author outlaw
  */
-public class Controller implements MouseListener  {
+public class Controller implements MouseListener ,ActionListener {
  
     private final Command command;
     private GameFrame frame;
@@ -26,7 +28,7 @@ public class Controller implements MouseListener  {
         this.command = temp;
 
         this.frame = frame;
-        frame.addListener(this);
+        frame.addListener(this,this);
         frame.loadGame(temp.getSize());
     }
     
@@ -36,24 +38,19 @@ public class Controller implements MouseListener  {
     public void mouseClicked(MouseEvent e) { 
         if(SwingUtilities.isRightMouseButton(e)){
             System.out.println("right");
-            command.undo();
-        frame.updateGameFrame(getMovementState(command.getMoveState()), 
-                command.getMoveFrom(), 
-                command.getMoveTo(), 
-                command.getMoveDisc(), 
-                command.getTowerA(), 
-                command.getTowerB(), 
-                command.getTowerC());
+            
             return;
         }
         command.setMove(frame.getPanelName(e));
-        frame.updateGameFrame(getMovementState(command.getMoveState()), 
+        frame.updateGameFrame(getCommandtState(command.getMoveState()), 
                 command.getMoveFrom(), 
                 command.getMoveTo(), 
                 command.getMoveDisc(), 
                 command.getTowerA(), 
                 command.getTowerB(), 
                 command.getTowerC());
+        //frame.setRedo(command.hadRedo());
+        frame.setUndoEnabled(command.hadUndo());
     }
 
     @Override
@@ -72,7 +69,7 @@ public class Controller implements MouseListener  {
     public void mouseExited(MouseEvent e) {
     }
 
-    private int getMovementState(int moveState) {
+    private int getCommandtState(int moveState) {
         switch (moveState){
             case Movement.MOVE:
                 return TowerPanel.MOVE;
@@ -82,6 +79,35 @@ public class Controller implements MouseListener  {
                 return TowerPanel.SELECT;
         }
         return TowerPanel.DISELECT;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        System.out.println(e.getActionCommand());
+        boolean update=false;
+        switch(e.getActionCommand()){
+            case GameFrame.UNDO:
+                update=command.undo();
+                break;
+            case GameFrame.REDO:
+                update=command.redo();
+                break;                
+            case GameFrame.HELP:
+                System.out.println("help");
+                //update=command.help();
+                break;
+        }
+        if(update){
+            frame.updateGameFrame(getCommandtState(command.getMoveState()), 
+                    command.getMoveFrom(), 
+                    command.getMoveTo(), 
+                    command.getMoveDisc(), 
+                    command.getTowerA(), 
+                    command.getTowerB(), 
+                    command.getTowerC());
+            frame.setRedoEnabled(command.hadRedo());
+            frame.setUndoEnabled(command.hadUndo());
+        }
     }
         
 }
