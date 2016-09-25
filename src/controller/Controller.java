@@ -5,6 +5,7 @@
  */
 package controller;
 
+import bot.Bot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import model.Movement;
@@ -23,10 +24,10 @@ public class Controller implements MouseListener ,ActionListener {
  
     private final Command command;
     private GameFrame frame;
-
+    private Bot bot;
     public Controller(Command temp, GameFrame frame) {
         this.command = temp;
-
+        bot = new Bot();
         this.frame = frame;
         frame.addListener(this,this);
         frame.loadGame(temp.getSize());
@@ -95,6 +96,7 @@ public class Controller implements MouseListener ,ActionListener {
             case GameFrame.HELP:
                 System.out.println("help");
                 //update=command.help();
+                help();
                 break;
         }
         if(update){
@@ -108,6 +110,20 @@ public class Controller implements MouseListener ,ActionListener {
             frame.setRedoEnabled(command.hadRedo());
             frame.setUndoEnabled(command.hadUndo());
         }
+    }
+
+    private void help() {
+        bot.setGrid(command.getTowerA(),command.getTowerB(),command.getTowerC());
+        command.setMove(bot.getDisc(),bot.getFrom(),bot.getTo());
+        frame.updateGameFrame(getCommandtState(command.getMoveState()), 
+                 command.getMoveFrom(), 
+                 command.getMoveTo(), 
+                 command.getMoveDisc(), 
+                 command.getTowerA(), 
+                 command.getTowerB(), 
+                 command.getTowerC());
+         //frame.setRedo(command.hadRedo());
+         frame.setUndoEnabled(command.hadUndo());
     }
         
 }

@@ -147,5 +147,10 @@ public class Command {
         return stack.hadRedo();
     }
 
+    public void setMove(int disc, char from, char to) {
+        getTower(to).addDisk(getTower(from).getLasDisck());
+        move = new Movement(Movement.MOVE,from,to,disc);
+    }
+
     
 }

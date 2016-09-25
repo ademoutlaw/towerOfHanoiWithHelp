@@ -1,9 +1,7 @@
 package controller;
 
-import java.awt.Color;
 import model.Command;
 import view.GameFrame;
-import view.TowerPanel;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -22,7 +20,7 @@ public class TowerOfHanoi {
      */
     public static void main(String[] args) {
                
-        new Controller(new Command(15), new GameFrame());
+        new Controller(new Command(9), new GameFrame());
         //2*T(n-1) +1.
     }
     
