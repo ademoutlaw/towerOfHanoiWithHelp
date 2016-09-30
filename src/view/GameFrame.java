@@ -9,9 +9,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.GridLayout;
-import java.awt.MenuBar;
-import java.awt.PopupMenu;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -19,9 +16,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -29,7 +25,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 
 /**
  *
@@ -52,15 +47,13 @@ public class GameFrame extends JFrame {
     public GameFrame() {
         
         super("tower of hanoi!");
+        this.setForeground(Color.red);
+        
         
         setBar();
         stackA = new TowerPanel('A');
         stackB = new TowerPanel('B');
         stackC = new TowerPanel('C');
-        
-        
-        
-       
         
         URL urlBackground = getClass().getResource("/view/images/background.jpg");
         
@@ -81,22 +74,24 @@ public class GameFrame extends JFrame {
         if (urlBackground != null) {
             try {
                 imgBackground =ImageIO.read(urlBackground);
+                setIconImage(imgBackground);
             } catch (IOException ex) {
-                Logger.getLogger(GameFrame.class.getName()).log(Level.SEVERE, null, ex);
+                
             }
         }
         System.out.println(imgBackground);
         System.out.println(urlUndoClick);
+        getRootPane().setBorder(BorderFactory.createMatteBorder(0, 4, 4, 4,Color.BLACK));
         JPanel jPanel= new JPanel(){
             @Override
             protected void paintComponent(Graphics g){
                 super.paintComponent(g);
-                g.drawImage(imgBackground, 0, 0, this);
+                int x = (this.getWidth()-imgBackground.getWidth())/2;
+                int y = (this.getHeight()-imgBackground.getHeight());
+                g.drawImage(imgBackground, x, y, null);
             }  
         };        
-        jPanel.setBackground(Color.yellow);
-        //setSize(900, 400);
-        
+
         undoButton = new JButton();
         redoButton = new JButton();
         helpButton = new JButton();
@@ -117,10 +112,7 @@ public class GameFrame extends JFrame {
         undoButton.setBorderPainted(false);        
         redoButton.setBorderPainted(false);
         helpButton.setBorderPainted(false);
-        
-        //undoButton.setBorder(null);
-        //redoButton.setBorder(null);
-        
+                
         undoButton.setIcon(new ImageIcon(urlUndo));
         redoButton.setIcon(new ImageIcon(urlRedo));
         helpButton.setIcon(new ImageIcon(urlNext));
@@ -146,18 +138,25 @@ public class GameFrame extends JFrame {
         undoButton.setToolTipText("undo the move");
         redoButton.setToolTipText("redo the move");
         helpButton.setToolTipText("get the best next move");
+        jPanel.setLayout(new BorderLayout());
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setOpaque(false);
+        buttonPanel.add(undoButton,BorderLayout.WEST);
+        buttonPanel.add(redoButton,BorderLayout.WEST);
+        buttonPanel.add(helpButton,BorderLayout.EAST);
+        jPanel.add(buttonPanel, BorderLayout.NORTH);
+        JPanel towerPanel = new JPanel();
+        towerPanel.add(stackA);
+        towerPanel.add(stackB);
+        towerPanel.add(stackC);
+        towerPanel.setOpaque(false);
+        jPanel.add(towerPanel, BorderLayout.SOUTH);
         
-        jPanel.add(undoButton);
-        jPanel.add(redoButton);
-        jPanel.add(stackA);
-        jPanel.add(stackB);
-        jPanel.add(stackC);
-        jPanel.add(helpButton);
         
-        add(jPanel,0);
+        add(jPanel,BorderLayout.CENTER);
         
         setVisible(true);
-        this.setMinimumSize(new Dimension(1000,400));
+        this.setMinimumSize(new Dimension(700,550));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.pack();
     }
@@ -196,8 +195,10 @@ public class GameFrame extends JFrame {
     }    
 
     private void setBar() {
+        //TODO: ???
         JMenuBar bar = new JMenuBar();
-        
+        bar.setForeground(Color.red);
+        bar.setOpaque(false);
         JMenu fileMenu = new JMenu("menu");
         JMenu helpMenu = new JMenu("help");
         
@@ -227,4 +228,5 @@ public class GameFrame extends JFrame {
         
         
     }
+    
 }
