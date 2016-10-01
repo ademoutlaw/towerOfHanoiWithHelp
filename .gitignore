@@ -4,3 +4,5 @@
 /src/view/TestFrame.java
 /src/view/testDialog.form
 /src/view/testDialog.java
+*.properties
+*.class
