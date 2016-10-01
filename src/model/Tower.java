@@ -27,10 +27,12 @@ public class Tower extends ArrayList<Disc>{
         } 
     }
     
-    protected boolean addDisk(Disc disk){
-        if(lastDiskSize>disk.getSize()||lastDiskSize==0){
-            lastDiskSize=disk.getSize();
-            return add(disk);
+    protected boolean addDisk(Disc disc){
+        if(disc==null)
+            return false;
+        if(lastDiskSize>disc.getSize()||lastDiskSize==0){
+            lastDiskSize=disc.getSize();
+            return add(disc);
         }
         return false;
     }

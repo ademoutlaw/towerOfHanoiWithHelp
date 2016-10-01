@@ -38,7 +38,7 @@ public class TowerPanel extends JPanel{
     private boolean selected;
     private int posY;
     private final char name;
-    private Timer timer;
+    private static Timer timer;
         
     private static int movedDisckX;
     private static int movedDisckY;
@@ -58,11 +58,8 @@ public class TowerPanel extends JPanel{
         stack = new ArrayList();
         setOpaque(false);
         setPreferredSize(new Dimension(220,350));
-        timer = new Timer(8, new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateMovedDisck();
-            }          
+        timer = new Timer(1, (ActionEvent e) -> {
+            updateMovedDisck();          
         });
     }
 
@@ -96,6 +93,7 @@ public class TowerPanel extends JPanel{
             int disk=stack.get(i);
             g.fillRoundRect(posX(disk), posY, disk*10, 18,10,10);
             posY -= 19;
+            // TODO : g.drawImage(null, disk, disk, disk, disk, i, i, i, i, this);
         }
             
         //}
@@ -129,6 +127,7 @@ public class TowerPanel extends JPanel{
     }
     
     private void updateMovedDisck(){
+        System.out.println("eeee");
         if(toMove){
             switch(direction){
                 case UP:
@@ -140,6 +139,7 @@ public class TowerPanel extends JPanel{
                     if((movedDisckY++)>=finishY){
                        toMove=false;
                        timer.stop();
+                       System.out.println("##########################closed");
                     }
                     break;
                 case LEFT:
@@ -168,15 +168,19 @@ public class TowerPanel extends JPanel{
                     break;       
             }
         }
-        repaint();
+        else{
+            timer.stop();
+        }
+        //repaint();
         
     }
     
     protected void loadStackPanel(int size) {
+        // TODO : animation
         for(int i=size;i>0;i--){
             stack.add(i);
         }
-        repaint();
+        //repaint();
     }
  
     protected void updateStackPanel(ArrayList<Integer> discksSizes, int status, char from, char to, int disck) {        
@@ -192,7 +196,7 @@ public class TowerPanel extends JPanel{
                 break;
         }
         stack=discksSizes;
-        repaint();        
+        //repaint();        
     }
 
     private void drawMove(char from, char to, int disck) {

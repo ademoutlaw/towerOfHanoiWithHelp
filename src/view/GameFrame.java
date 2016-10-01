@@ -7,8 +7,12 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -16,15 +20,21 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.border.Border;
 
 /**
  *
@@ -42,60 +52,62 @@ public class GameFrame extends JFrame {
     private final JButton undoButton;
     private final JButton redoButton;
     private final JButton helpButton;
-    private  BufferedImage imgBackground;
+    
+    private BufferedImage imgBackground;
+    private URL urlUndo;
+    private URL urlUndoHover;
+    private URL urlUndoClick;
+    private URL urlUndoDisable;
+    private URL urlRedo;
+    private URL urlRedoHover;
+    private URL urlNextClick;
+    private URL urlNext;
+    private URL urlRedoDisable;
+    private URL urlRedoClick;
+    private URL urlNextHover;
+    private JDialog d;
+    private URL urlBackground;
    
     public GameFrame() {
         
         super("tower of hanoi!");
-        this.setForeground(Color.red);
         
+        //this.setUndecorated(true);
         
+        /* try {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        //UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
+            Logger.getLogger(GameFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }*/
         setBar();
         stackA = new TowerPanel('A');
         stackB = new TowerPanel('B');
         stackC = new TowerPanel('C');
-        
-        URL urlBackground = getClass().getResource("/view/images/background.jpg");
-        
-        URL urlUndo = getClass().getResource("/view/images/undo.png");
-        URL urlUndoHover = getClass().getResource("/view/images/undo_hover.png");
-        URL urlUndoClick = getClass().getResource("/view/images/undo_click.png");
-        URL urlUndoDisable = getClass().getResource("/view/images/undo_unable.png");
-        
-        URL urlRedo = getClass().getResource("/view/images/redo.png");
-        URL urlRedoHover = getClass().getResource("/view/images/redo_hover.png");
-        URL urlRedoClick = getClass().getResource("/view/images/redo_click.png");        
-        URL urlRedoDisable = getClass().getResource("/view/images/redo_unable.png");
-        
-        URL urlNext = getClass().getResource("/view/images/next.png");
-        URL urlNextHover = getClass().getResource("/view/images/next_hover.png");
-        URL urlNextClick = getClass().getResource("/view/images/next_click.png");
-        
-        if (urlBackground != null) {
-            try {
-                imgBackground =ImageIO.read(urlBackground);
-                setIconImage(imgBackground);
-            } catch (IOException ex) {
-                
-            }
-        }
-        System.out.println(imgBackground);
-        System.out.println(urlUndoClick);
-        getRootPane().setBorder(BorderFactory.createMatteBorder(0, 4, 4, 4,Color.BLACK));
-        JPanel jPanel= new JPanel(){
+        this.setLocation(50, 50);
+       
+        getRootPane().setBorder(BorderFactory.createMatteBorder(0, 4, 4, 4,Color.white));
+        GamePanel gamePanel;
+        gamePanel = new GamePanel()
+        /*{
+            
             @Override
             protected void paintComponent(Graphics g){
                 super.paintComponent(g);
                 int x = (this.getWidth()-imgBackground.getWidth())/2;
                 int y = (this.getHeight()-imgBackground.getHeight());
-                g.drawImage(imgBackground, x, y, null);
-            }  
-        };        
-
+                URL test = null;
+                Image image = new ImageIcon(urlBackground).getImage();
+                //System.out.println("test");
+                g.drawImage(image, 0, 0, null);
+            }
+        }*/;        
+        
         undoButton = new JButton();
         redoButton = new JButton();
         helpButton = new JButton();
         
+        loadImages();
         
         undoButton.setPreferredSize(new Dimension(64,64));
         redoButton.setPreferredSize(new Dimension(64,64));
@@ -112,7 +124,25 @@ public class GameFrame extends JFrame {
         undoButton.setBorderPainted(false);        
         redoButton.setBorderPainted(false);
         helpButton.setBorderPainted(false);
+        
+        helpButton.setBorder(new Border() {
+
+            @Override
+            public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+            }
+
+            @Override
+            public Insets getBorderInsets(Component c) {
                 
+                return new Insets(0,0,0,0);
+            }
+
+            @Override
+            public boolean isBorderOpaque() {
+                return false;
+            }
+        });
+             
         undoButton.setIcon(new ImageIcon(urlUndo));
         redoButton.setIcon(new ImageIcon(urlRedo));
         helpButton.setIcon(new ImageIcon(urlNext));
@@ -138,22 +168,22 @@ public class GameFrame extends JFrame {
         undoButton.setToolTipText("undo the move");
         redoButton.setToolTipText("redo the move");
         helpButton.setToolTipText("get the best next move");
-        jPanel.setLayout(new BorderLayout());
+        gamePanel.setLayout(new BorderLayout());
         JPanel buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);
         buttonPanel.add(undoButton,BorderLayout.WEST);
         buttonPanel.add(redoButton,BorderLayout.WEST);
         buttonPanel.add(helpButton,BorderLayout.EAST);
-        jPanel.add(buttonPanel, BorderLayout.NORTH);
+        gamePanel.add(buttonPanel, BorderLayout.NORTH);
         JPanel towerPanel = new JPanel();
         towerPanel.add(stackA);
         towerPanel.add(stackB);
         towerPanel.add(stackC);
         towerPanel.setOpaque(false);
-        jPanel.add(towerPanel, BorderLayout.SOUTH);
+        gamePanel.add(towerPanel, BorderLayout.SOUTH);
         
         
-        add(jPanel,BorderLayout.CENTER);
+        add(gamePanel,BorderLayout.CENTER);
         
         setVisible(true);
         this.setMinimumSize(new Dimension(700,550));
@@ -166,6 +196,31 @@ public class GameFrame extends JFrame {
         
     }
     
+    private void loadImages(){
+        urlBackground = getClass().getResource("/view/images/background.gif");
+        if (urlBackground != null) {
+            try {
+                imgBackground =ImageIO.read(urlBackground);
+                setIconImage(imgBackground);
+            } catch (IOException ex) {
+                
+            }
+        }
+        urlUndo = getClass().getResource("/view/images/undo.png");
+        urlUndoHover = getClass().getResource("/view/images/undo_hover.png");
+        urlUndoClick = getClass().getResource("/view/images/undo_click.png");
+        urlUndoDisable = getClass().getResource("/view/images/undo_unable.png");
+        
+        urlRedo = getClass().getResource("/view/images/redo.png");
+        urlRedoHover = getClass().getResource("/view/images/redo_hover.png");
+        urlRedoClick = getClass().getResource("/view/images/redo_click.png");        
+        urlRedoDisable = getClass().getResource("/view/images/redo_unable.png");
+        
+        urlNext = getClass().getResource("/view/images/next.png");
+        urlNextHover = getClass().getResource("/view/images/next_hover.png");
+        urlNextClick = getClass().getResource("/view/images/next_click.png");
+    }
+    
     public char getPanelName(MouseEvent e){
         return ((TowerPanel)e.getSource()).getPanelName();        
     }
@@ -174,7 +229,16 @@ public class GameFrame extends JFrame {
             ArrayList<Integer> stkA,ArrayList<Integer> stkB,ArrayList<Integer> stkC ){
         stackA.updateStackPanel(stkA, move, from, to, disc);
         stackB.updateStackPanel(stkB, move, from, to, disc);
-        stackC.updateStackPanel(stkC, move, from, to, disc);        
+        stackC.updateStackPanel(stkC, move, from, to, disc);
+        /* if(d==null){
+            d = new JDialog();
+            //d.setUndecorated(true);
+            d.setVisible(true);
+            d.setMinimumSize(new Dimension(120,400));
+            
+            d.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        }
+        System.out.println(d);*/
     }
 
     public void addListener(MouseListener mouse, ActionListener action) {
@@ -196,24 +260,47 @@ public class GameFrame extends JFrame {
 
     private void setBar() {
         //TODO: ???
-        JMenuBar bar = new JMenuBar();
+        JMenuBar bar = new JMenuBar(){
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.setColor(Color.white);
+                g.fillRect(0, 0, getWidth() , getHeight() );
+            }
+        };
         bar.setForeground(Color.red);
+        
         bar.setOpaque(false);
         JMenu fileMenu = new JMenu("menu");
         JMenu helpMenu = new JMenu("help");
-        
+
         JMenuItem undoItem = new JMenuItem("undo");
         JMenuItem redoItem = new JMenuItem("redo");
         JMenuItem exitItem = new JMenuItem("exit");
+
+        undoItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, java.awt.event.InputEvent.CTRL_MASK));
+        
+        undoItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("heyyy");
+            }
+        });
+        
+        redoItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("heyyy FFF");
+            }
+        });
         
         JMenu test = new JMenu("test");
-        
         JMenuItem test1 = new JMenuItem("test1");
         JMenuItem test2 = new JMenuItem("test2");
         JMenuItem test3 = new JMenuItem("test3");
-         test.add(test1);
-         test.add(test2);
-         test.add(test3);
+        test.add(test1);
+        test.add(test2);
+        test.add(test3);
         
         
         //undoItem.add(test);
@@ -226,7 +313,9 @@ public class GameFrame extends JFrame {
         bar.add(helpMenu);
         setJMenuBar(bar);
         
-        
+        //UIManager.put("MenuBar.background", Color.RED);
+        //UIManager.put("Menu.background", Color.GREEN);
+        // UIManager.put("MenuItem.background", Color.MAGENTA);     
     }
     
 }
