@@ -13,7 +13,7 @@ public class Movement {
     
     public static final int MOVE=1;
     public static final int SELECT=0;
-    public static final int DISELECT=2;
+    public static final int DESELECT=2;
     
     private final char from;
     private final char to;

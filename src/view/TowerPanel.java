@@ -5,227 +5,339 @@
  */
 package view;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JPanel;
-import javax.swing.Timer;
 
 /**
  *
  * @author outlaw
  */
-public class TowerPanel extends JPanel{
+public class TowerPanel extends JPanel implements MouseMotionListener {
     
-    private static final int STACK_WIDTH =200;
-    public static final int MOVE=0;
-    public static final int DISELECT=1;
-    public static final int SELECT=2;
-    private static final int LEFT=1;
-    private static final int RIGHT=2;
-    private static final int UP=3;
-    private static final int DOWN=4;
+    private static final int POLE_A = 100;
+    private static final int POLE_B = 300;
+    private static final int POLE_C = 500;
     
-    private ArrayList<Integer> stack;
-    private int disck;
-    private boolean selected;
-    private int posY;
-    private final char name;
-    private static Timer timer;
+    private static final int DISC_HEIGHT = 16;
+    private static final int PANEL_HEIGHT = 350;
+    
+    public static final char MOVE = 'm';
+    public static final char SELECT = 's';
+    public static final char DESELECT = 'd';
+    
+    public static final char TOWER_A = 'a';
+    public static final char TOWER_B = 'b';
+    public static final char TOWER_C = 'c';
         
-    private static int movedDisckX;
-    private static int movedDisckY;
-    private static boolean toMove;
-    private static char currentStack;
-    private static int movedDisck;
-    private static char toStack;
-    private static int direction;
-    private static int horizontal;
-    private static int finishY;
-    private static int finishX;
-             
+    private List<Integer> towerA;
+    private List<Integer> towerB;
+    private List<Integer> towerC;
     
-    protected TowerPanel(char name) {
-        //isSet=true;
-        this.name = name;
-        stack = new ArrayList();
-        setOpaque(false);
-        setPreferredSize(new Dimension(220,350));
-        timer = new Timer(1, (ActionEvent e) -> {
-            updateMovedDisck();          
-        });
+    private boolean isSelected;
+    private boolean isMoving;
+    
+    private int poleTo;
+    private int poleFrom;
+    private int direction;
+    private int currentDisc;
+    private int currentDiscX;
+    private int currentDiscY;
+    private int pole;
+    private int frameRate;
+    private double walked;
+    private int hoveredPole;
+    private final Color colorHover;
+    private final Color colorClick;
+    private boolean error;
+    private Color colorError;
+    private boolean click;
+    
+
+    public TowerPanel() {  
+        
+        setPreferredSize(new Dimension(600,350));
+        
+        colorHover = new Color(255, 255, 0, 30);
+        colorClick = new Color(255, 255, 0, 100);
+        colorError = new Color(255, 0, 0, 220);
+        
+        setOpaque(false);  
+        /*towerA = new ArrayList<>();
+        towerB = new ArrayList<>();
+        towerC = new ArrayList<>(); */       
+        isSelected=true; 
+        addMouseMotionListener(this);
+    }
+        
+    @Override
+    protected void paintComponent(Graphics g) {        
+        //super.paintComponent(g); 
+        paintTowers(g);
+        paintDiscs(g);
+    }
+    
+    private void paintTowers(Graphics g){
+        if(hoveredPole>0){
+            if(error||click){
+                if(error){
+                    g.setColor(colorError);
+                    error = false;
+                }else{
+                   g.setColor(colorClick); 
+                   click = false;
+                }                
+            }else{
+                g.setColor(colorHover);
+            }
+            int x[]={hoveredPole+4,hoveredPole-100,hoveredPole+100};
+            int y[]={35,350,350};
+            g.fillPolygon(x, y, 3);
+        }
+        
+        g.setColor(Color.BLACK); 
+        g.fillRect(POLE_A, 40, 10, 350);
+        g.fillRect(POLE_B, 40, 10, 350);
+        g.fillRect(POLE_C, 40, 10, 350);         
+        if(pole>0){
+            g.setColor(Color.red);
+            g.fillRect(pole, 40, 10, 350);
+            g.setColor(Color.BLACK); 
+            pole=0;
+        }        
+        g.fillRect(0, 320, 600, 30);
+    }
+    
+    private void paintDiscs(Graphics g){          
+        paintDiscs(g,towerA,POLE_A);
+        paintDiscs(g,towerB,POLE_B);
+        paintDiscs(g,towerC,POLE_C);       
+        paintSelectedDisc(g);
+        paintWorkedDisc(g);
+    }
+    
+    private void paintDiscs(Graphics g,List<Integer> list, int center){
+        int posY=PANEL_HEIGHT-DISC_HEIGHT-30;
+        g.setColor(Color.green);        
+        int minus = 0;
+        if(isMoving &&center == poleTo){
+            minus = -1;            
+        }
+        for(int i=0;i<list.size()+minus;i++){
+            int disc = list.get(i);
+            if(disc<0){
+                dropDisc(g, center,posY,disc,list,i);                
+                break;
+            }
+            g.fillRoundRect(getPosX(disc,center), posY, disc*18, DISC_HEIGHT, 18, 18);
+            posY-=DISC_HEIGHT+1;
+        }        
+    }
+    
+    protected void loadTower() {   
+        hideTower(towerA);
+        hideTower(towerB);
+        hideTower(towerC);       
+    }
+    
+    private void setHover(MouseEvent e){
+        pole = getPole(getTowerName(e));
+    }
+
+    protected void setTowers(List listA, List listB, List listC) {        
+        towerA=listA;
+        towerB=listB;
+        towerC=listC;
+    }
+    
+    public List<Integer> getTowerByName(char tower){
+        switch(tower){
+            case TOWER_A:
+                return towerA;
+            case TOWER_B:
+                return towerB;
+            case TOWER_C:
+                return towerC;            
+        }
+        return null;        
+    }
+    
+    protected void setAction(char actionName,char from , char to ,int disc){        
+        switch(actionName){
+            case MOVE:
+                click = true;
+                isMoving = true;
+                isSelected = false;
+                break;
+            case SELECT:
+                click = true;
+                isSelected = true;
+                isMoving = false;
+                break;
+            case DESELECT:
+                //if(from!=)
+                error=true;
+                isSelected = false;
+                isMoving = false;
+                break;
+            default:
+                return;   
+        }
+        poleFrom = getPole(from);
+        poleTo = getPole(to);
+        direction = poleFrom<poleTo?1:-1;
+        currentDisc=disc;
+    }
+    
+    private int getPole(char tower){
+        switch(tower){
+            case TOWER_A:
+                return POLE_A;               
+            case TOWER_B:
+                return POLE_B;
+            case TOWER_C:
+                return POLE_C;
+            default:
+                return 0;            
+        }
+        
+    }
+    
+    private int getPosX(int disc, int center) {        
+        return center-disc*18/2+4;        
+    }
+
+    private void paintSelectedDisc(Graphics g) {
+        if(isSelected) {            
+            g.setColor(Color.green);            
+            g.fillRoundRect(getPosX(currentDisc, poleFrom), getPosY(poleFrom)-6, currentDisc * 18,
+                   DISC_HEIGHT, 18, 18);
+        }
+        
+    }
+   
+    private void paintWorkedDisc(Graphics g) {
+        if(isMoving){
+            int distance = getDistance();            
+            walked++;
+            int walker = (int) map (walked,0,130,0,distance);
+            walking(walker);
+            g.setColor(Color.green);
+            g.fillRoundRect(currentDiscX,currentDiscY , currentDisc * 18,
+                   DISC_HEIGHT, 18, 18);
+        }
+    }
+        
+    protected char getTowerName(MouseEvent e) {        
+        return hover(e.getX());
+    }
+
+    private int getPosY(int poleFrom) {
+        switch(poleFrom){
+            case POLE_A:
+                return PANEL_HEIGHT-DISC_HEIGHT-30-towerA.size()*(DISC_HEIGHT+1);
+            case POLE_B:
+                return PANEL_HEIGHT-DISC_HEIGHT-30-towerB.size()*(DISC_HEIGHT+1);
+            case POLE_C:
+                return PANEL_HEIGHT-DISC_HEIGHT-30-towerC.size()*(DISC_HEIGHT+1);
+        }
+        return 0;
+    }
+
+    private void hideTower(List<Integer> tower) {
+        for(int i = 0;i<tower.size();i++){
+            int x = tower.get(i);
+            tower.set(i, -x);
+        }        
     }
 
     @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g); //To change body of generated methods, choose Tools | Templates.
-        paintStack(g);
-        paintDiscks(g);
-        paintSelectedDisck(g);
-        paintMovedDisck(g);
+    public String toString() {
+        String t="";
+        for (Integer tower : towerA) {
+            t+=" "+tower;
+        }
+        return t;
     }
 
-    private void paintStack(Graphics g) {
-        g.setColor(Color.black);
-        g.fillRect(110, 40, 5, 300);
-        g.fillRect(10, 310, 200, 30);
-        g.setColor(Color.yellow);
-        g.setFont(new Font(Font.SANS_SERIF,Font.BOLD,20));
-        g.drawString(""+name, 107, 330);
-               
-    }
-    
-    private void paintDiscks(Graphics g){
-        posY =290;
-        int last=0;
-        g.setColor(Color.blue.darker()); 
-        if(toMove && name==toStack){
-            last=1;
-        }
-        for(int i=0;i<stack.size()-last;i++){
-            int disk=stack.get(i);
-            g.fillRoundRect(posX(disk), posY, disk*10, 18,10,10);
-            posY -= 19;
-            // TODO : g.drawImage(null, disk, disk, disk, disk, i, i, i, i, this);
-        }
-            
-        //}
-        
-    }
-    
-    private void paintSelectedDisck(Graphics g){
-        if(selected){
-            
-            g.fillRoundRect(posX(disck), posY-4, disck*10, 18,10,10);
-            g.setColor(Color.blue); 
-            Graphics2D g2 = (Graphics2D) g;
-            g2.setStroke(new BasicStroke((float) 1.5));
-            g2.drawRoundRect(posX(disck), posY-4, disck*10, 18,10,10);
+    private void dropDisc(Graphics g, int center, int posY,int disc, List<Integer> list, int i) {
+        frameRate++;
+        int pos =(int) map(frameRate,0,10,0,posY);
+        g.fillRoundRect(getPosX(-disc,center), pos, -disc*18, DISC_HEIGHT, 18, 18);
+        if(frameRate>=10){
+           list.set(i, -disc);
+           frameRate = 0;
         }
     }
-    
-    private void paintMovedDisck(Graphics g){
-        if(toMove && name == currentStack){
-            g.setColor(Color.blue.darker());
-            g.fillRoundRect(movedDisckX, movedDisckY, movedDisck*10,18,10,10);
+
+    private double map(double value1, double min1, double max1, double min2, double max2) {
+        return min2 + (max2 - min2) / (max1-min1) * (value1-min1);       
+    }
+
+    private int getDistance() {
+        return getPosY(poleTo)+getPosY(poleFrom)+Math.abs(poleTo-poleFrom);   
+    }
+
+    private void walking(int walker) {
+        int up = getPosY(poleFrom);
+        if(walker >up){
+            int horizontal = Math.abs(poleTo-poleFrom);
+            if(walker >up + horizontal){
+                int down = getPosY(poleTo);
+                if(walker > up + horizontal + down){
+                    isMoving=false;
+                    walked = 0;                    
+                }else{
+                    currentDiscX = getPosX(currentDisc,poleTo);
+                    currentDiscY = walker - up - horizontal; 
+                }
+            }else{                
+                currentDiscX = getPosX(currentDisc,poleFrom+(walker-up)*direction);                
+                currentDiscY = 0;                
+            }
+        }else{
+            currentDiscX = getPosX(currentDisc,poleFrom);
+            currentDiscY = up - walker;
         }
     }
-    
-    protected void addAMouseListener(MouseListener l){
-        addMouseListener(l);
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
     }
-    
-    public char getPanelName() {
-        return name;
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        hover(e.getX());
     }
-    
-    private void updateMovedDisck(){
-        System.out.println("eeee");
-        if(toMove){
-            switch(direction){
-                case UP:
-                    if((movedDisckY--)<=0){
-                        direction=horizontal;
-                    }
-                    break; 
-                case DOWN:
-                    if((movedDisckY++)>=finishY){
-                       toMove=false;
-                       timer.stop();
-                       System.out.println("##########################closed");
-                    }
-                    break;
-                case LEFT:
-                    if(currentStack != toStack){
-                        if((movedDisckX--)<=0){
-                            movedDisckX=STACK_WIDTH;
-                            currentStack--;
-                        }
-                    }else{
-                        if((movedDisckX--)<=finishX){
-                           direction=DOWN;
-                        }
-                    }
-                    break;
-                case RIGHT:
-                    if(currentStack != toStack){
-                        if((movedDisckX++)>=STACK_WIDTH){
-                            movedDisckX=0;
-                            currentStack++;
-                        }
-                    }else{
-                        if((movedDisckX++)>=finishX){
-                           direction=DOWN;
-                        }
-                    }
-                    break;       
+
+    private char hover(int x) {
+        if(x>POLE_A-70 && x <POLE_A+70){
+            setCursor(new Cursor(Cursor.HAND_CURSOR));
+            hoveredPole = POLE_A;
+            return TOWER_A;  
+        }else{
+            if(x>POLE_B-70 && x <POLE_B+70){
+                setCursor(new Cursor(Cursor.HAND_CURSOR));
+                hoveredPole = POLE_B;
+                return TOWER_B;  
+            }else{
+                if(x>POLE_C-70 && x <POLE_C+70){
+                    setCursor(new Cursor(Cursor.HAND_CURSOR));
+                    hoveredPole = POLE_C;
+                    return TOWER_C;  
+                }else{
+                    setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+                    hoveredPole = 0;
+                    return ' ';
+                }
             }
         }
-        else{
-            timer.stop();
-        }
-        //repaint();
-        
     }
-    
-    protected void loadStackPanel(int size) {
-        // TODO : animation
-        for(int i=size;i>0;i--){
-            stack.add(i);
-        }
-        //repaint();
-    }
- 
-    protected void updateStackPanel(ArrayList<Integer> discksSizes, int status, char from, char to, int disck) {        
-        switch(status){
-            case TowerPanel.MOVE:
-                drawMove(from,to,disck);
-                break;
-            case TowerPanel.SELECT:
-                drawSelected(from,disck);
-                break;
-            default:
-                this.selected=false;
-                break;
-        }
-        stack=discksSizes;
-        //repaint();        
-    }
-
-    private void drawMove(char from, char to, int disck) {
-        selected=false; 
-        if(from!=to){
-            timer.start();
-            if(name==from){
-                movedDisck=disck;
-                toMove=true;
-                direction=UP;
-                movedDisckX=posX(disck);
-                movedDisckY=posY;
-                currentStack=from;
-                horizontal = from>to?LEFT:RIGHT;
-                toStack=to;
-            }else if(name == to){                
-                finishX = posX(disck);
-                finishY = posY;
-            }     
-        }
-    }
-        
-    private void drawSelected(char from, int disck) {
-        this.disck=disck;
-        this.selected=this.name==from;
-    }
-
-    private int posX(int disck) {   
-        return 112-disck*5;
-    }
-    
+           
 }

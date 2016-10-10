@@ -5,259 +5,178 @@
  */
 package view;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
+import java.awt.event.MouseMotionListener;
+import java.util.List;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.border.Border;
+import javax.swing.Timer;
 
 /**
  *
  * @author outlaw
  */
-public class GameFrame extends JFrame {
+public class GameFrame extends JFrame implements ActionListener{
     
     public final static String UNDO ="undo";
     public final static String REDO ="redo";
     public final static String HELP ="help";
     
-    private final TowerPanel stackA;
-    private final TowerPanel stackB;
-    private final TowerPanel stackC;
-    private final JButton undoButton;
-    private final JButton redoButton;
-    private final JButton helpButton;
+    public static final char MOVE = 'm';
+    public static final char SELECT = 's';
+    public static final char DESELECT = 'd';
     
-    private BufferedImage imgBackground;
-    private URL urlUndo;
-    private URL urlUndoHover;
-    private URL urlUndoClick;
-    private URL urlUndoDisable;
-    private URL urlRedo;
-    private URL urlRedoHover;
-    private URL urlNextClick;
-    private URL urlNext;
-    private URL urlRedoDisable;
-    private URL urlRedoClick;
-    private URL urlNextHover;
-    private JDialog d;
-    private URL urlBackground;
-   
-    public GameFrame() {
-        
-        super("tower of hanoi!");
-        
-        //this.setUndecorated(true);
-        
-        /* try {
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        //UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
-            Logger.getLogger(GameFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
-        setBar();
-        stackA = new TowerPanel('A');
-        stackB = new TowerPanel('B');
-        stackC = new TowerPanel('C');
-        this.setLocation(50, 50);
-       
-        getRootPane().setBorder(BorderFactory.createMatteBorder(0, 4, 4, 4,Color.white));
-        GamePanel gamePanel;
-        gamePanel = new GamePanel()
-        /*{
+    public static final char TOWER_A = 'a';
+    public static final char TOWER_B = 'b';
+    public static final char TOWER_C = 'c';
+    public static final char GAP = ' ';
             
-            @Override
-            protected void paintComponent(Graphics g){
-                super.paintComponent(g);
-                int x = (this.getWidth()-imgBackground.getWidth())/2;
-                int y = (this.getHeight()-imgBackground.getHeight());
-                URL test = null;
-                Image image = new ImageIcon(urlBackground).getImage();
-                //System.out.println("test");
-                g.drawImage(image, 0, 0, null);
-            }
-        }*/;        
-        
-        undoButton = new JButton();
-        redoButton = new JButton();
-        helpButton = new JButton();
-        
-        loadImages();
-        
-        undoButton.setPreferredSize(new Dimension(64,64));
-        redoButton.setPreferredSize(new Dimension(64,64));
-        helpButton.setPreferredSize(new Dimension(128,128));
-        
-        undoButton.setOpaque(false);
-        redoButton.setOpaque(false);
-        helpButton.setOpaque(false);
-        
-        undoButton.setContentAreaFilled(false);
-        redoButton.setContentAreaFilled(false);
-        helpButton.setContentAreaFilled(false);
-        
-        undoButton.setBorderPainted(false);        
-        redoButton.setBorderPainted(false);
-        helpButton.setBorderPainted(false);
-        
-        helpButton.setBorder(new Border() {
+    private final Timer timer;
+    private final GamePanel gamePanel;
+    private final LevelsPanel levelsPanel;
+    private final DialogPanel dialogPanel;
+    
+    private boolean isNewLevel;
+    private int frameRate;
+    private int frameDrawed;
+    private boolean wait;
+     
+    public GameFrame() {     
 
-            @Override
-            public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-            }
-
-            @Override
-            public Insets getBorderInsets(Component c) {
-                
-                return new Insets(0,0,0,0);
-            }
-
-            @Override
-            public boolean isBorderOpaque() {
-                return false;
-            }
-        });
-             
-        undoButton.setIcon(new ImageIcon(urlUndo));
-        redoButton.setIcon(new ImageIcon(urlRedo));
-        helpButton.setIcon(new ImageIcon(urlNext));
+        gamePanel = new GamePanel();
+        levelsPanel = new LevelsPanel();
+        frameRate = 20;
+        levelsPanel.setFps(20);
+        dialogPanel = new DialogPanel();
         
-        undoButton.setPressedIcon(new ImageIcon(urlUndoClick));
-        redoButton.setPressedIcon(new ImageIcon(urlRedoClick));
-        helpButton.setPressedIcon(new ImageIcon(urlNextClick));
+        timer = new Timer(30, this);
+        timer.start();
         
-        undoButton.setRolloverIcon(new ImageIcon(urlUndoHover));
-        redoButton.setRolloverIcon(new ImageIcon(urlRedoHover));
-        helpButton.setRolloverIcon(new ImageIcon(urlNextHover));        
+        setLayout(null);
+        add(levelsPanel);
+        add(dialogPanel);
+        add(gamePanel);
         
-        undoButton.setDisabledIcon(new ImageIcon(urlUndoDisable));
-        redoButton.setDisabledIcon(new ImageIcon(urlRedoDisable));
-        
-        undoButton.setEnabled(false);
-        redoButton.setEnabled(false);
-        
-        undoButton.setActionCommand(GameFrame.UNDO);
-        redoButton.setActionCommand(GameFrame.REDO);
-        helpButton.setActionCommand(GameFrame.HELP); 
-        
-        undoButton.setToolTipText("undo the move");
-        redoButton.setToolTipText("redo the move");
-        helpButton.setToolTipText("get the best next move");
-        gamePanel.setLayout(new BorderLayout());
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setOpaque(false);
-        buttonPanel.add(undoButton,BorderLayout.WEST);
-        buttonPanel.add(redoButton,BorderLayout.WEST);
-        buttonPanel.add(helpButton,BorderLayout.EAST);
-        gamePanel.add(buttonPanel, BorderLayout.NORTH);
-        JPanel towerPanel = new JPanel();
-        towerPanel.add(stackA);
-        towerPanel.add(stackB);
-        towerPanel.add(stackC);
-        towerPanel.setOpaque(false);
-        gamePanel.add(towerPanel, BorderLayout.SOUTH);
-        
-        
-        add(gamePanel,BorderLayout.CENTER);
-        
-        setVisible(true);
-        this.setMinimumSize(new Dimension(700,550));
+        //setBar();
+        //getRootPane().setBorder(BorderFactory.createMatteBorder(0, 4, 4, 4,Color.white));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.pack();
-    }
-    
-    public void loadGame(int size){
-        stackA.loadStackPanel(size);
+        setMinimumSize(new Dimension(700,550));
+        setLocation(50, 50);
+        pack();
+        setVisible(true);        
         
     }
+     
+    public void setGame(List<Integer> stkA, List<Integer> stkB, List<Integer> stkC, int level){
+        gamePanel.setTowers(stkA, stkB, stkC);
+        levelsPanel.setLevel(level);        
+    }
     
-    private void loadImages(){
-        urlBackground = getClass().getResource("/view/images/background.gif");
-        if (urlBackground != null) {
-            try {
-                imgBackground =ImageIO.read(urlBackground);
-                setIconImage(imgBackground);
-            } catch (IOException ex) {
-                
+    public char getTowerName(MouseEvent e){
+        return gamePanel.getTowerName(e);        
+    }
+    
+    
+
+    public void setListeners(MouseListener mouse, ActionListener action) {
+        gamePanel.setListeners(mouse, action);
+        levelsPanel.addMouseListener(mouse);        
+        dialogPanel.addListener(action);
+    }
+   
+    public void setUndoEnabled(boolean hadUndo) {
+        gamePanel.setUndoEnabled(hadUndo);
+    }
+    
+    public void setRedoEnabled(boolean hadRedo) {
+        gamePanel.setRedoEnabled(hadRedo);
+    }        
+
+    public int getLevel(MouseEvent e) {
+        return levelsPanel.getLevel(e);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        repaint(); 
+        gamePanel.setBounds(0, 0, this.getWidth(), this.getHeight());
+        levelsPanel.setBounds(0, 0, this.getWidth(), this.getHeight());
+        dialogPanel.setBounds(0, 0, this.getWidth(), this.getHeight());
+        if(wait){
+            if(frameDrawed>=frameRate){
+                if(isNewLevel){
+                    showGame();
+                    gamePanel.loadTower();
+                    isNewLevel = false;
+                 }
+            }else{
+                frameDrawed++;
             }
         }
-        urlUndo = getClass().getResource("/view/images/undo.png");
-        urlUndoHover = getClass().getResource("/view/images/undo_hover.png");
-        urlUndoClick = getClass().getResource("/view/images/undo_click.png");
-        urlUndoDisable = getClass().getResource("/view/images/undo_unable.png");
         
-        urlRedo = getClass().getResource("/view/images/redo.png");
-        urlRedoHover = getClass().getResource("/view/images/redo_hover.png");
-        urlRedoClick = getClass().getResource("/view/images/redo_click.png");        
-        urlRedoDisable = getClass().getResource("/view/images/redo_unable.png");
-        
-        urlNext = getClass().getResource("/view/images/next.png");
-        urlNextHover = getClass().getResource("/view/images/next_hover.png");
-        urlNextClick = getClass().getResource("/view/images/next_click.png");
     }
     
-    public char getPanelName(MouseEvent e){
-        return ((TowerPanel)e.getSource()).getPanelName();        
+    public void showDialog(){
+        levelsPanel.setVisible(false);
+        gamePanel.setVisible(true);
+        dialogPanel.setVisible(true);        
     }
     
-    public void updateGameFrame(int move,char from,char to,int disc,
-            ArrayList<Integer> stkA,ArrayList<Integer> stkB,ArrayList<Integer> stkC ){
-        stackA.updateStackPanel(stkA, move, from, to, disc);
-        stackB.updateStackPanel(stkB, move, from, to, disc);
-        stackC.updateStackPanel(stkC, move, from, to, disc);
-        /* if(d==null){
-            d = new JDialog();
-            //d.setUndecorated(true);
-            d.setVisible(true);
-            d.setMinimumSize(new Dimension(120,400));
-            
-            d.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        }
-        System.out.println(d);*/
+    public void showGame(){
+        levelsPanel.setVisible(false);
+        gamePanel.setVisible(true);
+        dialogPanel.setVisible(false);        
+    }
+    
+    public void showLevels(){
+        levelsPanel.setVisible(true);
+        gamePanel.setVisible(false);
+        dialogPanel.setVisible(false);        
     }
 
-    public void addListener(MouseListener mouse, ActionListener action) {
-        stackA.addMouseListener(mouse);
-        stackB.addMouseListener(mouse);
-        stackC.addMouseListener(mouse);
-        undoButton.addActionListener(action);
-        redoButton.addActionListener(action);
-        helpButton.addActionListener(action);
+    public void errorLevel(int l) {
+        levelsPanel.errorLevel(l);        
     }
 
-    public void setUndoEnabled(boolean hadUndo) {
-        undoButton.setEnabled(hadUndo);
+    public void acceptLevel(List<Integer> stkA, List<Integer> stkB, List<Integer> stkC, int l) {
+        levelsPanel.acceptLevel(l);
+        gamePanel.setTowers(stkA, stkB, stkC); 
+        isNewLevel = true;
+        frameDrawed = 0;
+        wait = true;
     }
 
-    public void setRedoEnabled(boolean hadRedo) {
-        redoButton.setEnabled(hadRedo);
-    }    
+    public void setHoveredLevel(MouseEvent e) {        
+        levelsPanel.getLevel(e);
+    }
+    
+    public void setFrameRate(int frameRate) {
+        this.frameRate = frameRate;
+        levelsPanel.setFps(frameRate);
+    }
 
+    public void setMove(char action, char discFrom, char discTo, int disc) {
+        gamePanel.setMove(action, discFrom, discTo, disc);
+    }
+
+    public void setTowers(List<Integer> towerA, List<Integer> towerB, List<Integer> towerC) {
+        gamePanel.setTowers(towerA, towerB, towerC);
+    }
+    
+    public void win(boolean win) {
+        wait = win;
+        
+    }
+    
     private void setBar() {
         //TODO: ???
         JMenuBar bar = new JMenuBar(){
@@ -317,5 +236,5 @@ public class GameFrame extends JFrame {
         //UIManager.put("Menu.background", Color.GREEN);
         // UIManager.put("MenuItem.background", Color.MAGENTA);     
     }
-    
+  
 }
