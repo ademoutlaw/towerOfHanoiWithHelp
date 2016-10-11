@@ -11,7 +11,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
 
@@ -50,7 +49,7 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
     private int currentDiscX;
     private int currentDiscY;
     private int pole;
-    private int frameRate;
+    private int [] frameRate;
     private double walked;
     private int hoveredPole;
     private final Color colorHover;
@@ -58,9 +57,11 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
     private boolean error;
     private Color colorError;
     private boolean click;
+    private int fps;
     
 
     public TowerPanel() {  
+        this.frameRate = new int[]{0, 0, 0};
         
         setPreferredSize(new Dimension(600,350));
         
@@ -129,6 +130,7 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
         if(isMoving &&center == poleTo){
             minus = -1;            
         }
+        if(list!=null)
         for(int i=0;i<list.size()+minus;i++){
             int disc = list.get(i);
             if(disc<0){
@@ -156,7 +158,7 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
         towerC=listC;
     }
     
-    public List<Integer> getTowerByName(char tower){
+    protected List<Integer> getTowerByName(char tower){
         switch(tower){
             case TOWER_A:
                 return towerA;
@@ -170,19 +172,26 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
     
     protected void setAction(char actionName,char from , char to ,int disc){        
         switch(actionName){
-            case MOVE:
+            case GameFrame.MOVE_FAST:
+                isMoving = true;
+                isSelected = false;
+                fps = 30;
+                break;
+            case GameFrame.MOVE:
                 click = true;
                 isMoving = true;
                 isSelected = false;
+                fps = 80;
                 break;
-            case SELECT:
+            case GameFrame.SELECT:
                 click = true;
                 isSelected = true;
                 isMoving = false;
                 break;
-            case DESELECT:
-                //if(from!=)
-                error=true;
+            case GameFrame.DESELECT_ERR:
+                error=true;                
+            case GameFrame.DESELECT:
+                click = true;
                 isSelected = false;
                 isMoving = false;
                 break;
@@ -226,7 +235,7 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
         if(isMoving){
             int distance = getDistance();            
             walked++;
-            int walker = (int) map (walked,0,130,0,distance);
+            int walker = (int) map (walked,0,fps,0,distance);
             walking(walker);
             g.setColor(Color.green);
             g.fillRoundRect(currentDiscX,currentDiscY , currentDisc * 18,
@@ -257,22 +266,14 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
         }        
     }
 
-    @Override
-    public String toString() {
-        String t="";
-        for (Integer tower : towerA) {
-            t+=" "+tower;
-        }
-        return t;
-    }
-
     private void dropDisc(Graphics g, int center, int posY,int disc, List<Integer> list, int i) {
-        frameRate++;
-        int pos =(int) map(frameRate,0,10,0,posY);
+        int j = center / (POLE_A *2);
+        frameRate[j]++;
+        int pos =(int) map(frameRate[j],0,10,0,posY);
         g.fillRoundRect(getPosX(-disc,center), pos, -disc*18, DISC_HEIGHT, 18, 18);
-        if(frameRate>=10){
+        if(frameRate[j]>=10){
            list.set(i, -disc);
-           frameRate = 0;
+           frameRate[j] = 0;
         }
     }
 

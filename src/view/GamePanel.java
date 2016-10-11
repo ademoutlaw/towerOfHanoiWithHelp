@@ -41,6 +41,7 @@ public class GamePanel extends JPanel {
     private final ButtonImage reloadButton;
     private final JLabel stepsLabel;
     private final JLabel helpLabel;
+    private final JPanel buttonPanel;
     
 
     public GamePanel() {
@@ -59,6 +60,8 @@ public class GamePanel extends JPanel {
         undoButton.setActionCommand(GameFrame.UNDO);
         redoButton.setActionCommand(GameFrame.REDO);
         helpButton.setActionCommand(GameFrame.HELP); 
+        menuButton.setActionCommand(GameFrame.MENU); 
+        reloadButton.setActionCommand(GameFrame.BACK); 
         
         undoButton.setToolTipText("undo the move");
         redoButton.setToolTipText("redo the move");
@@ -71,7 +74,7 @@ public class GamePanel extends JPanel {
         helpLabel.setFont(new Font(Font.SERIF, Font.BOLD, 20));
         stepsLabel.setFont(new Font(Font.SERIF, Font.BOLD, 20));
         
-        JPanel buttonPanel = new JPanel();
+        buttonPanel = new JPanel();
         buttonPanel.setBackground(new Color(0,0,0,200));
         buttonPanel.setLayout(new GridLayout(1,7));
         buttonPanel.add(reloadButton);
@@ -105,6 +108,8 @@ public class GamePanel extends JPanel {
         undoButton.addActionListener(al);
         redoButton.addActionListener(al);
         helpButton.addActionListener(al);        
+        reloadButton.addActionListener(al);        
+        menuButton.addActionListener(al);        
     }
 
     protected void loadTower() {
@@ -130,7 +135,8 @@ public class GamePanel extends JPanel {
     protected void setUndoEnabled(boolean hadUndo) {
         undoButton.setEnabled(hadUndo);
     }
-
+    
+    
     
 
     

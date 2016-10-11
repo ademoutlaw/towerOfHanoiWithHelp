@@ -18,9 +18,11 @@ public class Command {
     public static final char TOWER_B = 'B';
     public static final char EMPTY = '_';
     
-    public static final char MOVE = 'm';
-    public static final char SELECT = 's';
-    public static final char DESELECT = 'd';
+    public static final char MOVE = 'M';
+    public static final char MOVE_FAST = 'm';
+    public static final char SELECT = 'S';
+    public static final char DESELECT = 's';
+    public static final char DESELECT_ERR = 'E';
     
     
     private boolean isSelected;
@@ -38,34 +40,37 @@ public class Command {
  
     
     private final Stack stack;
+    private final int lastLevel;
+    private final boolean saved;
+
 
     public Command() {
-        this.level=9;
+        saved = true;
+        lastLevel = 12;
+        level=0;
         stack = new Stack();
-        towerA = new Tower(level);
-        towerB = new Tower(level);
-        towerC = new Tower(level);
+        towerA = Test.getTowerB();//new Tower(level);
+        towerB = Test.getTowerB();//new Tower(0);
+        towerC = Test.getTowerC();//new Tower(0);
     }
 
-    public void setMove(char towerName){
+    public void setAction(char towerName){
         if(isSelected){
             if(discFrom != towerName && getTower(towerName).add(disc)){
-                System.out.println("you can move");
                 isSelected = false;                
                 action = MOVE;
-                discTo = towerName;                
+                discTo = towerName; 
+                stack.addMovement(discFrom,discTo,disc);
             }else{
                 getTower(discFrom).add(disc);
-                System.out.println("diselected ");
                 isSelected = false;                
-                action = DESELECT;
+                action = discFrom == towerName?DESELECT:DESELECT_ERR;
                 disc = 0;
                 discFrom = EMPTY;
                 discTo = EMPTY;                
             }            
         }else{
             disc = getTower(towerName).getLasDisck();
-            System.out.println("selected ");
             isSelected = true && disc>0;
             action = SELECT;
             discFrom = towerName;
@@ -87,19 +92,20 @@ public class Command {
     }
     
     public boolean undo(){
-      /*  if(hasDisck){
-            hasDisck=false;
-            from.add(disck);
-        }
-        if((move = stack.undo())!=null){
-            getTower(move.getFrom())
-                    .addDisk(
-                            getTower(move.getTo())
-                                    .getLasDisck()
-                    );
-            reverseMove();
+         if(isSelected){
+            isSelected=false;
+            getTower(discFrom).add(disc);
+            action = DESELECT;
             return true;
-        }*/
+        }
+        if(stack.undo()){
+            action = MOVE_FAST;
+            discTo = stack.getFrom();
+            discFrom = stack.getTo();
+            disc = getTower(discFrom).getLasDisck();
+            getTower(discTo).add(disc);            
+            return true;
+        }
         return false;
     }
     
@@ -131,11 +137,6 @@ public class Command {
         return towerC.getDiscs();        
     }
                  
-
-    private void reverseMove() {
-       // move = new Movement(Movement.MOVE,move.getTo(),move.getFrom(),move.getDisc());
-    }
-
     public boolean hadUndo() {
         return stack.hadUndo();
     }
@@ -164,27 +165,35 @@ public class Command {
         return action;
     }
 
-    public int getLevel() {
-        return level;
+    public int getLastLevel() {
+        return lastLevel;
     }
 
     public boolean isSaved() {
-        return false;
+        return saved;
     }
 
-    public boolean setLevel(int l) {                        
-        if(l < level){
+    public boolean setLevel(int l) { 
+        if(lastLevel==l&&level==0){
+            level =l;
+            return true;
+        }
+        if(l <=lastLevel&&l>0){
             level = l;
             towerA.init(level);
             towerB.init(0);
             towerC.init(0);
             return true;
         }
-        return l==level;
+        return false;
     }
 
     public boolean win() {
         return false;
+    }
+
+    private void addMove() {
+        
     }
         
 }

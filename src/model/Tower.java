@@ -26,7 +26,6 @@ public class Tower extends ArrayList<Integer>{
     }
     
     public boolean add(int disc){
-        System.out.println("disc :"+disc);
         if( disc == 0 )
             return false;
         if(lastDiskSize>disc||lastDiskSize==0){
@@ -62,12 +61,20 @@ public class Tower extends ArrayList<Integer>{
         return "Tower{" + "lastDiskSize=" + lastDiskSize + '}';
     }
 
-    protected void init(int level) {
+    /**
+     *
+     * @param level
+     */
+    protected final void init(int level) {
         lastDiskSize = level>0? 1:0;
         super.clear();
         for(int i=level;i>0;i--){
             super.add(i);
         } 
+    }
+
+    void setlastDisc(int i) {
+        lastDiskSize = i;
     }
                
 }

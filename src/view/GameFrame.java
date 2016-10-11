@@ -8,6 +8,7 @@ package view;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -27,28 +28,41 @@ import javax.swing.Timer;
  */
 public class GameFrame extends JFrame implements ActionListener{
     
-    public final static String UNDO ="undo";
-    public final static String REDO ="redo";
-    public final static String HELP ="help";
+    public final static String UNDO = "undo";
+    public final static String REDO = "redo";
+    public final static String HELP = "help";
+    public final static String BACK = "back";
+    public final static String START = "start";
+    public final static String NEW_GAME = "new game";
+    public final static String CONTINUE = "continue";
+    public final static String MENU = "menu";
     
     public static final char MOVE = 'm';
+    public static final char MOVE_FAST = 'f';
     public static final char SELECT = 's';
     public static final char DESELECT = 'd';
+    public static final char DESELECT_ERR = 'e';
     
     public static final char TOWER_A = 'a';
     public static final char TOWER_B = 'b';
     public static final char TOWER_C = 'c';
     public static final char GAP = ' ';
+    
+    
+    
+    
+    
             
     private final Timer timer;
     private final GamePanel gamePanel;
     private final LevelsPanel levelsPanel;
-    private final DialogPanel dialogPanel;
+    //private final DialogPanel dialogPanel;
     
     private boolean isNewLevel;
     private int frameRate;
     private int frameDrawed;
     private boolean wait;
+    private final ConfirmPanel confirmPanel;
      
     public GameFrame() {     
 
@@ -56,51 +70,58 @@ public class GameFrame extends JFrame implements ActionListener{
         levelsPanel = new LevelsPanel();
         frameRate = 20;
         levelsPanel.setFps(20);
-        dialogPanel = new DialogPanel();
+        confirmPanel = new ConfirmPanel();
+        
         
         timer = new Timer(30, this);
         timer.start();
         
         setLayout(null);
+        add(confirmPanel);
         add(levelsPanel);
-        add(dialogPanel);
         add(gamePanel);
         
         //setBar();
         //getRootPane().setBorder(BorderFactory.createMatteBorder(0, 4, 4, 4,Color.white));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setMinimumSize(new Dimension(700,550));
-        setLocation(50, 50);
+        //setLocation(200, 200);
         pack();
+        setLocationRelativeTo(null);
         setVisible(true);        
-        
     }
      
     public void setGame(List<Integer> stkA, List<Integer> stkB, List<Integer> stkC, int level){
         gamePanel.setTowers(stkA, stkB, stkC);
-        levelsPanel.setLevel(level);        
+        gamePanel.setUndoEnabled(false);
+        gamePanel.setRedoEnabled(false);
+        levelsPanel.setLevel(level); 
+        confirmPanel.setConfirmType(ConfirmPanel0.START);        
+        showDialog();
     }
     
     public char getTowerName(MouseEvent e){
         return gamePanel.getTowerName(e);        
     }
-    
-    
-
+        
     public void setListeners(MouseListener mouse, ActionListener action) {
         gamePanel.setListeners(mouse, action);
         levelsPanel.addMouseListener(mouse);        
-        dialogPanel.addListener(action);
+        confirmPanel.addListener(action);
     }
    
-    public void setUndoEnabled(boolean hadUndo) {
+   
+    
+    public void back() {
+        confirmPanel.setConfirmType(ConfirmPanel0.CONTINUE);
+        showDialog();
+    }
+
+    public void setUndoRedoEnabled(boolean hadUndo, boolean hadRedo) {
+        gamePanel.setRedoEnabled(hadRedo);
         gamePanel.setUndoEnabled(hadUndo);
     }
     
-    public void setRedoEnabled(boolean hadRedo) {
-        gamePanel.setRedoEnabled(hadRedo);
-    }        
-
     public int getLevel(MouseEvent e) {
         return levelsPanel.getLevel(e);
     }
@@ -110,7 +131,7 @@ public class GameFrame extends JFrame implements ActionListener{
         repaint(); 
         gamePanel.setBounds(0, 0, this.getWidth(), this.getHeight());
         levelsPanel.setBounds(0, 0, this.getWidth(), this.getHeight());
-        dialogPanel.setBounds(0, 0, this.getWidth(), this.getHeight());
+        confirmPanel.setBounds(0, 0, this.getWidth(), this.getHeight());
         if(wait){
             if(frameDrawed>=frameRate){
                 if(isNewLevel){
@@ -128,19 +149,19 @@ public class GameFrame extends JFrame implements ActionListener{
     public void showDialog(){
         levelsPanel.setVisible(false);
         gamePanel.setVisible(true);
-        dialogPanel.setVisible(true);        
+        confirmPanel.setVisible(true);        
     }
     
     public void showGame(){
         levelsPanel.setVisible(false);
         gamePanel.setVisible(true);
-        dialogPanel.setVisible(false);        
+        confirmPanel.setVisible(false);        
     }
     
     public void showLevels(){
         levelsPanel.setVisible(true);
         gamePanel.setVisible(false);
-        dialogPanel.setVisible(false);        
+        confirmPanel.setVisible(false);        
     }
 
     public void errorLevel(int l) {
@@ -149,7 +170,9 @@ public class GameFrame extends JFrame implements ActionListener{
 
     public void acceptLevel(List<Integer> stkA, List<Integer> stkB, List<Integer> stkC, int l) {
         levelsPanel.acceptLevel(l);
-        gamePanel.setTowers(stkA, stkB, stkC); 
+        gamePanel.setTowers(stkA, stkB, stkC);
+        gamePanel.setUndoEnabled(false);
+        gamePanel.setRedoEnabled(false);
         isNewLevel = true;
         frameDrawed = 0;
         wait = true;
@@ -173,8 +196,7 @@ public class GameFrame extends JFrame implements ActionListener{
     }
     
     public void win(boolean win) {
-        wait = win;
-        
+        wait = win;        
     }
     
     private void setBar() {
@@ -236,5 +258,7 @@ public class GameFrame extends JFrame implements ActionListener{
         //UIManager.put("Menu.background", Color.GREEN);
         // UIManager.put("MenuItem.background", Color.MAGENTA);     
     }
+
+    
   
 }

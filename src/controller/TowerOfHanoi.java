@@ -5,19 +5,14 @@
  */
 package controller;
 
-import bot.Bot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import model.Movement;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.util.List;
 import javax.swing.SwingUtilities;
 import model.Command;
 import view.GameFrame;
 import view.TowerPanel;
-import view.TowerPanel_old;
 
 /**
  *
@@ -32,7 +27,6 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
     private final Command command;
     private final GameFrame frame;
     
-    private int level;
     //private Bot bot;
     private char currentFrame;
     
@@ -41,38 +35,40 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
         command = new Command();
         frame = new GameFrame();
         //bot = new Bot();
-        level = command.getLevel();
-        currentFrame = LEVEL_FRAME;
-        //level = 3;//----------------------------------------------------------------------------------
         frame.setListeners(this,this);
-        frame.setGame(command.getTowerA(),command.getTowerB(),command.getTowerC(),level);
-        if(command.isSaved()){
-            frame.showDialog();
-        }
-        else{
-            frame.showLevels();
-        }
+        frame.setGame(command.getTowerA(),command.getTowerB(),command.getTowerC(), command.getLastLevel());
+                
     }
       
      @Override
     public void actionPerformed(ActionEvent e) {
-        //System.out.println(e.getActionCommand());
         boolean update=false;
         switch(e.getActionCommand()){
+            case GameFrame.BACK:
+                back();
+                break;
             case GameFrame.UNDO:
-                update=command.undo();
+                undo();
                 break;
             case GameFrame.REDO:
                 update=command.redo();
                 break;                
             case GameFrame.HELP:
-                //System.out.println("help");
                 //frame.repaint();
                 help();
                 //update=command.help();
                 //help();
                 //frame.updating();
                 break;
+            case GameFrame.START:
+               startGame();
+               break;
+            case GameFrame.CONTINUE:
+               continueGame();
+               break;
+            case GameFrame.NEW_GAME:
+               newGame();
+               break;
         }
         if(update){
             //frame.updateGameFrame(getCommandtState(command.getMoveState()), command.getMoveFrom(), command.getMoveTo(), command.getMoveDisc(), command.getTowerA(), command.getTowerB(), command.getTowerC());
@@ -85,7 +81,7 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
     public void mouseClicked(MouseEvent e) { 
         if(SwingUtilities.isRightMouseButton(e)){
             return;
-        }             
+        } 
         switch(currentFrame){
             case LEVEL_FRAME:
                 getLevel(e);             
@@ -94,7 +90,7 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
                 System.out.println("dialog");                
                 break;
             case GAME_FRAME:
-                setMove(e);
+                setAction(e);
                 System.out.println("game");                
                 break;
         }
@@ -121,13 +117,6 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
         int l = frame.getLevel(e);
         if(l>0){
             if(command.setLevel(l)){
-                List<Integer> test = command.getTowerB();
-               System.out.println("???????????????????###################################");
-                for(int tower:test){
-                System.out.print(tower+"   ");
-            }
-                System.out.println();
-            System.out.println(" ******************************* ");
                 frame.acceptLevel(command.getTowerA(),command.getTowerB(),command.getTowerC(),l);
                 currentFrame = GAME_FRAME;
             }else{
@@ -148,27 +137,19 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
         return ' ';        
     }
       
-    private void setMove(MouseEvent e) {
+    private void setAction(MouseEvent e) {
         char t = getTowerName(e);
         if( t != GameFrame.GAP){
-            command.setMove(t);
-            List<Integer> test = command.getTowerB();
-               System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                for(int tower:test){
-                System.out.print(tower+"   ");
-            }
-                System.out.println();
-            System.out.println(" ******************************* ");
-            frame.setTowers(command.getTowerA(), test, command.getTowerC());
-            frame.setMove(covertAction(), getDiscFrom(), getDiscTo(), getDisc());
-            frame.setUndoEnabled(true);
-            frame.setRedoEnabled(true);
+            command.setAction(t);            
+            frame.setTowers(command.getTowerA(), command.getTowerB(), command.getTowerC());
+            frame.setMove(convertAction(), getDiscFrom(), getDiscTo(), getDisc());
+            frame.setUndoRedoEnabled(command.hadUndo(),command.hadRedo());
             frame.win(command.win());
         }
         
     }
 
-    private char covertAction() {
+    private char convertAction() {
         switch(command.getAction()){
             case Command.DESELECT:
                 return GameFrame.DESELECT;
@@ -176,6 +157,10 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
                 return GameFrame.SELECT;
             case Command.MOVE:
                 return GameFrame.MOVE;
+            case Command.MOVE_FAST:
+                return GameFrame.MOVE_FAST;
+            case Command.DESELECT_ERR:
+                return GameFrame.DESELECT_ERR;
         }
         return ' ';
     }
@@ -203,7 +188,12 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
         }
         return ' ';
     }
-        
+    
+    private void back() {
+        frame.back();
+        currentFrame = DIALOG_FRAME;
+    }
+    
     private void help() {
         //frame.loadGame(2,false);
        // bot.setGrid(command.getTowerA(),command.getTowerB(),command.getTowerC());
@@ -217,6 +207,29 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
                  command.getTowerC());*/
          //frame.setRedo(command.hadRedo());
          //frame.setUndoEnabled(command.hadUndo());
+    }
+    
+    private void startGame() {
+        frame.showLevels();
+        currentFrame = LEVEL_FRAME;
+    }
+
+    private void continueGame() {
+        frame.showGame();
+        currentFrame = GAME_FRAME;
+    }
+
+    private void newGame() {
+        frame.showLevels();
+        currentFrame = LEVEL_FRAME;
+    }
+
+    private void undo() {
+        if(command.undo()){
+            frame.setTowers(command.getTowerA(), command.getTowerB(), command.getTowerC());
+            frame.setMove(convertAction(), getDiscFrom(), getDiscTo(), getDisc());
+            frame.setUndoRedoEnabled(command.hadUndo(), command.hadRedo());
+        }
     }
         
     @Override
@@ -243,4 +256,8 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
         //2*U(n-1) +1.= (2^n)-1
         
     }
+
+    
+
+    
 }
