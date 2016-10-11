@@ -5,6 +5,7 @@
  */
 package controller;
 
+import model.bot.Bot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -27,14 +28,13 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
     private final Command command;
     private final GameFrame frame;
     
-    //private Bot bot;
+
     private char currentFrame;
     
     
     public TowerOfHanoi() {
         command = new Command();
         frame = new GameFrame();
-        //bot = new Bot();
         frame.setListeners(this,this);
         frame.setGame(command.getTowerA(),command.getTowerB(),command.getTowerC(), command.getLastLevel());
                 
@@ -42,7 +42,6 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
       
      @Override
     public void actionPerformed(ActionEvent e) {
-        boolean update=false;
         switch(e.getActionCommand()){
             case GameFrame.BACK:
                 back();
@@ -51,29 +50,23 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
                 undo();
                 break;
             case GameFrame.REDO:
-                update=command.redo();
+                redo();
                 break;                
             case GameFrame.HELP:
-                //frame.repaint();
                 help();
-                //update=command.help();
-                //help();
-                //frame.updating();
                 break;
             case GameFrame.START:
-               startGame();
-               break;
+                startGame();
+                break;
             case GameFrame.CONTINUE:
-               continueGame();
-               break;
+                continueGame();
+                break;
             case GameFrame.NEW_GAME:
-               newGame();
-               break;
-        }
-        if(update){
-            //frame.updateGameFrame(getCommandtState(command.getMoveState()), command.getMoveFrom(), command.getMoveTo(), command.getMoveDisc(), command.getTowerA(), command.getTowerB(), command.getTowerC());
-            //frame.setRedoEnabled(command.hadRedo());
-            //frame.setUndoEnabled(command.hadUndo());
+                newGame();
+                break;
+            case GameFrame.MENU:
+                menu();
+                break;
         }
     }
     
@@ -94,23 +87,6 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
                 System.out.println("game");                
                 break;
         }
-        
-        //System.out.println(l);
-       // System.out.println(getTowerName(e));
-        //setMove(e);
-        /*System.out.println(getAction());
-        System.out.println(getDisc());
-        System.out.println(getDiscFrom());
-        System.out.println(getDiscTo());*/
-        //updateGameFrame();/*getCommandtState(command.getMoveState()), 
-               // command.getMoveFrom(), 
-                //command.getMoveTo(), 
-                //command.getMoveDisc(), 
-                //command.getTowerA(), 
-               // command.getTowerB(), 
-               // command.getTowerC());*/
-        //frame.setRedo(command.hadRedo());
-        //frame.setUndoEnabled(command.hadUndo());
     }
 
     private void getLevel(MouseEvent e) {
@@ -141,12 +117,18 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
         char t = getTowerName(e);
         if( t != GameFrame.GAP){
             command.setAction(t);            
-            frame.setTowers(command.getTowerA(), command.getTowerB(), command.getTowerC());
-            frame.setMove(convertAction(), getDiscFrom(), getDiscTo(), getDisc());
-            frame.setUndoRedoEnabled(command.hadUndo(),command.hadRedo());
-            frame.win(command.win());
+            updateFrame();
         }
         
+    }
+
+    private void updateFrame() {
+        frame.setTowers(command.getTowerA(), command.getTowerB(), command.getTowerC());
+        frame.setMove(convertAction(), getDiscFrom(), getDiscTo(), command.getDisc());
+        frame.setUndoRedoEnabled(command.hadUndo(),command.hadRedo());
+        frame.win(command.win());
+        frame.setSteps(command.getSteps());
+        frame.setHelp(command.getNbrHeUsed(), command.getNbrHelp());
     }
 
     private char convertAction() {
@@ -163,10 +145,6 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
                 return GameFrame.DESELECT_ERR;
         }
         return ' ';
-    }
-
-    private int getDisc() {
-        return command.getDisc();
     }
 
     private char getDiscFrom() {        
@@ -195,18 +173,8 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
     }
     
     private void help() {
-        //frame.loadGame(2,false);
-       // bot.setGrid(command.getTowerA(),command.getTowerB(),command.getTowerC());
-       // command.setMove(bot.getDisc(),bot.getFrom(),bot.getTo());
-        /*frame.updateGameFrame(getCommandtState(command.getMoveState()), 
-                 command.getMoveFrom(), 
-                 command.getMoveTo(), 
-                 command.getMoveDisc(), 
-                 command.getTowerA(), 
-                 command.getTowerB(), 
-                 command.getTowerC());*/
-         //frame.setRedo(command.hadRedo());
-         //frame.setUndoEnabled(command.hadUndo());
+        command.help();        
+        updateFrame();
     }
     
     private void startGame() {
@@ -225,13 +193,15 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
     }
 
     private void undo() {
-        if(command.undo()){
-            frame.setTowers(command.getTowerA(), command.getTowerB(), command.getTowerC());
-            frame.setMove(convertAction(), getDiscFrom(), getDiscTo(), getDisc());
-            frame.setUndoRedoEnabled(command.hadUndo(), command.hadRedo());
+        if(command.undo()){            
+            updateFrame();
         }
     }
-        
+    private void redo() {
+        if(command.redo()){
+            updateFrame();
+        }
+    }  
     @Override
     public void mousePressed(MouseEvent e) {        
     }
@@ -255,6 +225,12 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
         TowerOfHanoi controller = new TowerOfHanoi();
         //2*U(n-1) +1.= (2^n)-1
         
+    }
+
+    
+
+    private void menu() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     

@@ -49,14 +49,21 @@ public class Stack {
         disc = move.disc;
         return true;
     }
-    
-    protected Movement redo() { 
-        if(redo.isEmpty())
-            return null;
+    protected boolean redo() { 
+        if(redo.isEmpty()){
+            from = Command.EMPTY;
+            to = Command.EMPTY;
+            disc = 0;
+            return false;
+        }
         Movement move =redo.remove(redo.size()-1);
         undo.add(move);
-        return move;
+        from = move.from;
+        to = move.to;
+        disc = move.disc;
+        return true;
     }
+    
 
     protected boolean hadUndo() {
         return !undo.isEmpty();

@@ -7,16 +7,13 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.LayoutManager;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.net.URL;
 import java.util.List;
 import javax.swing.ImageIcon;
@@ -134,6 +131,18 @@ public class GamePanel extends JPanel {
 
     protected void setUndoEnabled(boolean hadUndo) {
         undoButton.setEnabled(hadUndo);
+    }
+
+    protected void setSteps(int steps) {
+        if(steps>1){
+            stepsLabel.setText(steps +" steps");
+        }else{
+            stepsLabel.setText(steps +" step");
+        }
+    }
+
+    protected void setHelp(int nbrHelpLeft, int nbrHelp) {
+        helpLabel.setText(nbrHelpLeft+"/"+nbrHelp);
     }
     
     

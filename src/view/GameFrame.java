@@ -109,9 +109,7 @@ public class GameFrame extends JFrame implements ActionListener{
         levelsPanel.addMouseListener(mouse);        
         confirmPanel.addListener(action);
     }
-   
-   
-    
+          
     public void back() {
         confirmPanel.setConfirmType(ConfirmPanel0.CONTINUE);
         showDialog();
@@ -195,6 +193,10 @@ public class GameFrame extends JFrame implements ActionListener{
         gamePanel.setTowers(towerA, towerB, towerC);
     }
     
+    public void setSteps(int steps) {
+        gamePanel.setSteps(steps);
+    }
+    
     public void win(boolean win) {
         wait = win;        
     }
@@ -258,6 +260,14 @@ public class GameFrame extends JFrame implements ActionListener{
         //UIManager.put("Menu.background", Color.GREEN);
         // UIManager.put("MenuItem.background", Color.MAGENTA);     
     }
+
+    public void setHelp(int nbrHelpLeft, int nbrHelp) {
+        gamePanel.setHelp(nbrHelpLeft, nbrHelp);
+    }
+
+    
+
+    
 
     
   

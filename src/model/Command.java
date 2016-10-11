@@ -6,6 +6,7 @@
 package model;
 
 import java.util.List;
+import model.bot.Bot;
 
 /**
  *
@@ -35,23 +36,32 @@ public class Command {
     private final Tower towerB;
     private final Tower towerC;
     
-    private int level;
+    
     
  
     
     private final Stack stack;
     private final int lastLevel;
-    private final boolean saved;
+    private boolean saved;
+    private int level;
+    private int steps;
+    private final Bot bot;
+    private int helpUsed;
+    private int helpTotal;
 
 
     public Command() {
         saved = true;
         lastLevel = 12;
+        helpTotal = 126;
+        helpUsed = 85;
+        steps = 888;
         level=0;
         stack = new Stack();
-        towerA = Test.getTowerB();//new Tower(level);
+        towerA = Test.getTowerA();//new Tower(level);
         towerB = Test.getTowerB();//new Tower(0);
         towerC = Test.getTowerC();//new Tower(0);
+        bot =  new Bot(towerA, towerB, towerC);
     }
 
     public void setAction(char towerName){
@@ -61,6 +71,8 @@ public class Command {
                 action = MOVE;
                 discTo = towerName; 
                 stack.addMovement(discFrom,discTo,disc);
+                saved = false;
+                steps++;
             }else{
                 getTower(discFrom).add(disc);
                 isSelected = false;                
@@ -71,7 +83,7 @@ public class Command {
             }            
         }else{
             disc = getTower(towerName).getLasDisck();
-            isSelected = true && disc>0;
+            isSelected = disc>0;
             action = SELECT;
             discFrom = towerName;
             discTo = EMPTY;
@@ -81,47 +93,47 @@ public class Command {
     
     private Tower getTower(char towerName) {
         switch(towerName){
-            case 'A':
+            case Command.TOWER_A:
                 return towerA;
-            case 'B':
+            case Command.TOWER_B:
                 return towerB;
-            case 'C':
+            case Command.TOWER_C:
                 return towerC;
         }
         return null;
     }
     
-    public boolean undo(){
-         if(isSelected){
-            isSelected=false;
-            getTower(discFrom).add(disc);
-            action = DESELECT;
-            return true;
-        }
+    public boolean undo(){        
         if(stack.undo()){
+            if(isSelected){
+                isSelected=false;
+                getTower(discFrom).add(disc);
+            }
             action = MOVE_FAST;
             discTo = stack.getFrom();
             discFrom = stack.getTo();
             disc = getTower(discFrom).getLasDisck();
-            getTower(discTo).add(disc);            
+            getTower(discTo).add(disc);   
+            steps--;
             return true;
         }
         return false;
     }
     
     public boolean redo() {
-        /*if(hasDisck){
-            hasDisck=false;
-            from.add(disck);
-        }
-        if((move = stack.redo())!=null){
-            getTower(move.getTo())
-                    .addDisk(
-                            getTower(move.getFrom())
-                                    .getLasDisck()
-                    );
+        if(stack.redo()){
+            if(isSelected){
+                isSelected=false;
+                getTower(discFrom).add(disc);
+            }
+            action = MOVE_FAST;
+            discFrom = stack.getFrom();
+            discTo = stack.getTo();
+            disc = getTower(discFrom).getLasDisck();
+            getTower(discTo).add(disc);  
+            steps++;
             return true;
-        }*/
+        }
         return false;
     }
     
@@ -145,10 +157,6 @@ public class Command {
         return stack.hadRedo();
     }
 
-    public void setMove(int disc, char from, char to) {
-        getTower(to).add(getTower(from).getLasDisck());
-    }
-
     public int getDisc() {
         return disc;
     }
@@ -169,16 +177,13 @@ public class Command {
         return lastLevel;
     }
 
-    public boolean isSaved() {
-        return saved;
-    }
-
     public boolean setLevel(int l) { 
-        if(lastLevel==l&&level==0){
-            level =l;
+        if(saved&&lastLevel==l){
             return true;
         }
         if(l <=lastLevel&&l>0){
+            steps = 0;
+            helpUsed = 0;
             level = l;
             towerA.init(level);
             towerB.init(0);
@@ -192,8 +197,27 @@ public class Command {
         return false;
     }
 
-    private void addMove() {
-        
+    public int getSteps() {
+        return steps;
     }
-        
+
+    public void help() {
+        bot.help();
+        action = MOVE_FAST;
+        disc = bot.getDisc();
+        discTo = bot.getTo();
+        discFrom = bot.getFrom();
+        getTower(discTo).add(getTower(discFrom).getLasDisck());
+        steps++;
+        helpUsed++;
+    }
+
+    public int getNbrHeUsed() {
+        return helpUsed;
+    }
+
+    public int getNbrHelp() {
+        return helpTotal;
+    }
+          
 }

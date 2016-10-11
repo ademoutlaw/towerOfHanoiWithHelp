@@ -69,10 +69,7 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
         colorClick = new Color(255, 255, 0, 100);
         colorError = new Color(255, 0, 0, 220);
         
-        setOpaque(false);  
-        /*towerA = new ArrayList<>();
-        towerB = new ArrayList<>();
-        towerC = new ArrayList<>(); */       
+        setOpaque(false);        
         isSelected=true; 
         addMouseMotionListener(this);
     }
@@ -120,7 +117,7 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
         paintDiscs(g,towerB,POLE_B);
         paintDiscs(g,towerC,POLE_C);       
         paintSelectedDisc(g);
-        paintWorkedDisc(g);
+        paintWalkedDisc(g);
     }
     
     private void paintDiscs(Graphics g,List<Integer> list, int center){
@@ -130,16 +127,17 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
         if(isMoving &&center == poleTo){
             minus = -1;            
         }
-        if(list!=null)
-        for(int i=0;i<list.size()+minus;i++){
-            int disc = list.get(i);
-            if(disc<0){
-                dropDisc(g, center,posY,disc,list,i);                
-                break;
-            }
-            g.fillRoundRect(getPosX(disc,center), posY, disc*18, DISC_HEIGHT, 18, 18);
-            posY-=DISC_HEIGHT+1;
-        }        
+        if(list!=null){
+            for(int i=0;i<list.size()+minus;i++){
+                int disc = list.get(i);
+                if(disc<0){
+                    dropDisc(g, center,posY,disc,list,i);                
+                    break;
+                }
+                g.fillRoundRect(getPosX(disc,center), posY, disc*18, DISC_HEIGHT, 18, 18);
+                posY-=DISC_HEIGHT+1;
+            }  
+        }
     }
     
     protected void loadTower() {   
@@ -148,28 +146,12 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
         hideTower(towerC);       
     }
     
-    private void setHover(MouseEvent e){
-        pole = getPole(getTowerName(e));
-    }
-
     protected void setTowers(List listA, List listB, List listC) {        
         towerA=listA;
         towerB=listB;
         towerC=listC;
     }
-    
-    protected List<Integer> getTowerByName(char tower){
-        switch(tower){
-            case TOWER_A:
-                return towerA;
-            case TOWER_B:
-                return towerB;
-            case TOWER_C:
-                return towerC;            
-        }
-        return null;        
-    }
-    
+        
     protected void setAction(char actionName,char from , char to ,int disc){        
         switch(actionName){
             case GameFrame.MOVE_FAST:
@@ -181,6 +163,7 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
                 click = true;
                 isMoving = true;
                 isSelected = false;
+                walked = 0;
                 fps = 80;
                 break;
             case GameFrame.SELECT:
@@ -231,12 +214,12 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
         
     }
    
-    private void paintWorkedDisc(Graphics g) {
+    private void paintWalkedDisc(Graphics g) {
         if(isMoving){
             int distance = getDistance();            
             walked++;
-            int walker = (int) map (walked,0,fps,0,distance);
-            walking(walker);
+            int walk = (int) map (walked,0,fps,0,distance);
+            walking(walk);
             g.setColor(Color.green);
             g.fillRoundRect(currentDiscX,currentDiscY , currentDisc * 18,
                    DISC_HEIGHT, 18, 18);

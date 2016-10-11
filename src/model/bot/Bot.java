@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package bot;
+package model.bot;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -21,21 +21,20 @@ public class Bot {
     private int to;
     private int disc;
     
-    private final ArrayList<Integer>  [] grid;
+    private final List<Integer>  [] grid;
     private int currentIndex;
 
-    public Bot(){
-        grid = new ArrayList[3];
+    public Bot(List<Integer>  towerA, List<Integer>  towerB, List<Integer>  towerC){
+        grid = new List[3];
+        grid[0] = towerA;
+        grid[1] = towerB;
+        grid[2] = towerC;
+        
     }
-    public void setGrid(ArrayList<Integer>  towerA, ArrayList<Integer>  towerB, ArrayList<Integer>  towerC){
-        grid[0]=towerA;
-        grid[1]=towerB;
-        grid[2]=towerC;
-        next();
-    }
+    
+   
 
     public char getFrom() {
-        
         return (char) ('A'+from);
     }
 
@@ -134,6 +133,10 @@ public class Bot {
     private boolean hasPlace() {
         return grid[to].isEmpty()||grid[to].get(grid[to].size()-1)>disc;
         
+    }
+
+    public void help() {
+        next();
     }
 
     
