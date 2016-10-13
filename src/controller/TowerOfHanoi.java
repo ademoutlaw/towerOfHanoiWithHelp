@@ -94,6 +94,8 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
         if(l>0){
             if(command.setLevel(l)){
                 frame.acceptLevel(command.getTowerA(),command.getTowerB(),command.getTowerC(),l);
+                frame.setSteps(command.getSteps());
+                frame.setHelp(command.getNbrHeUsed(), command.getNbrHelp());
                 currentFrame = GAME_FRAME;
             }else{
                 frame.errorLevel(l);
@@ -118,6 +120,10 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
         if( t != GameFrame.GAP){
             command.setAction(t);            
             updateFrame();
+            if(command.isWin()){
+                frame.win(true);
+                currentFrame = DIALOG_FRAME;
+            }
         }
         
     }
@@ -126,7 +132,7 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
         frame.setTowers(command.getTowerA(), command.getTowerB(), command.getTowerC());
         frame.setMove(convertAction(), getDiscFrom(), getDiscTo(), command.getDisc());
         frame.setUndoRedoEnabled(command.hadUndo(),command.hadRedo());
-        frame.win(command.win());
+        
         frame.setSteps(command.getSteps());
         frame.setHelp(command.getNbrHeUsed(), command.getNbrHelp());
     }
@@ -197,6 +203,7 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
             updateFrame();
         }
     }
+    
     private void redo() {
         if(command.redo()){
             updateFrame();
@@ -218,16 +225,12 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
     public void mouseExited(MouseEvent e) {
     }    
 
-    
-
     public static void main(String[] args) {
                
         TowerOfHanoi controller = new TowerOfHanoi();
         //2*U(n-1) +1.= (2^n)-1
         
     }
-
-    
 
     private void menu() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

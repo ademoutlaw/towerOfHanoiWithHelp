@@ -24,8 +24,7 @@ public class Command {
     public static final char SELECT = 'S';
     public static final char DESELECT = 's';
     public static final char DESELECT_ERR = 'E';
-    
-    
+       
     private boolean isSelected;
     private int disc; 
     private char discFrom;   
@@ -35,11 +34,7 @@ public class Command {
     private final Tower towerA;
     private final Tower towerB;
     private final Tower towerC;
-    
-    
-    
- 
-    
+
     private final Stack stack;
     private final int lastLevel;
     private boolean saved;
@@ -48,7 +43,8 @@ public class Command {
     private final Bot bot;
     private int helpUsed;
     private int helpTotal;
-
+    private boolean freeDestin;
+    private boolean win;
 
     public Command() {
         saved = true;
@@ -57,6 +53,7 @@ public class Command {
         helpUsed = 85;
         steps = 888;
         level=0;
+        freeDestin = true;
         stack = new Stack();
         towerA = Test.getTowerA();//new Tower(level);
         towerB = Test.getTowerB();//new Tower(0);
@@ -65,6 +62,9 @@ public class Command {
     }
 
     public void setAction(char towerName){
+        if(win){
+            return;
+        }
         if(isSelected){
             if(discFrom != towerName && getTower(towerName).add(disc)){
                 isSelected = false;                
@@ -73,6 +73,7 @@ public class Command {
                 stack.addMovement(discFrom,discTo,disc);
                 saved = false;
                 steps++;
+                win = (towerB.isEmpty()||towerC.isEmpty()&&freeDestin)&&towerA.isEmpty();
             }else{
                 getTower(discFrom).add(disc);
                 isSelected = false;                
@@ -193,8 +194,8 @@ public class Command {
         return false;
     }
 
-    public boolean win() {
-        return false;
+    public boolean isWin() {
+        return win;
     }
 
     public int getSteps() {

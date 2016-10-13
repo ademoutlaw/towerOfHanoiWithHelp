@@ -72,7 +72,6 @@ public class GameFrame extends JFrame implements ActionListener{
         levelsPanel.setFps(20);
         confirmPanel = new ConfirmPanel();
         
-        
         timer = new Timer(30, this);
         timer.start();
         
@@ -96,7 +95,7 @@ public class GameFrame extends JFrame implements ActionListener{
         gamePanel.setUndoEnabled(false);
         gamePanel.setRedoEnabled(false);
         levelsPanel.setLevel(level); 
-        confirmPanel.setConfirmType(ConfirmPanel0.START);        
+        confirmPanel.setConfirmType(ConfirmPanel.START);        
         showDialog();
     }
     
@@ -111,7 +110,7 @@ public class GameFrame extends JFrame implements ActionListener{
     }
           
     public void back() {
-        confirmPanel.setConfirmType(ConfirmPanel0.CONTINUE);
+        confirmPanel.setConfirmType(ConfirmPanel.CONTINUE);
         showDialog();
     }
 
@@ -136,7 +135,7 @@ public class GameFrame extends JFrame implements ActionListener{
                     showGame();
                     gamePanel.loadTower();
                     isNewLevel = false;
-                 }
+                }
             }else{
                 frameDrawed++;
             }
