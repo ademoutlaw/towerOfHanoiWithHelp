@@ -36,7 +36,7 @@ public class Command {
     private final Tower towerC;
 
     private final Stack stack;
-    private final int lastLevel;
+    private int lastLevel;
     private boolean saved;
     private int level;
     private int steps;
@@ -46,20 +46,23 @@ public class Command {
     private boolean freeDestin;
     private boolean win;
 
+    
+
     public Command() {
-        saved = true;
-        lastLevel = 12;
-        helpTotal = 126;
-        helpUsed = 85;
-        steps = 888;
-        level=0;
-        freeDestin = true;
-        stack = new Stack();
-        towerA = Test.getTowerA();//new Tower(level);
-        towerB = Test.getTowerB();//new Tower(0);
-        towerC = Test.getTowerC();//new Tower(0);
+        this.towerA = Loader.towerA;
+        this.towerB = Loader.towerB;
+        this.towerC = Loader.towerC;
+        this.stack = Loader.stack;
+        this.lastLevel = Loader.lastLevel;
+        this.saved = Loader.saved;
+        this.level = Loader.currentLevel;
+        this.steps = Loader.steps;
+        this.freeDestin = Loader.freeDestin;
+        this.helpTotal = Loader.helpTotal;
+        this.helpUsed = Loader.helpUsed;
         bot =  new Bot(towerA, towerB, towerC);
     }
+    
 
     public void setAction(char towerName){
         if(win){
@@ -180,6 +183,7 @@ public class Command {
 
     public boolean setLevel(int l) { 
         if(saved&&lastLevel==l){
+            saved = false;
             return true;
         }
         if(l <=lastLevel&&l>0){
@@ -189,6 +193,8 @@ public class Command {
             towerA.init(level);
             towerB.init(0);
             towerC.init(0);
+            saved = false;
+            disc = 0;
             return true;
         }
         return false;
@@ -219,6 +225,34 @@ public class Command {
 
     public int getNbrHelp() {
         return helpTotal;
+    }
+
+    public boolean next() {        
+        if(win&&!(win = false)&&level==lastLevel){
+            lastLevel++;            
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isSaved() {
+        return saved;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public int getHelpUsed() {
+        return helpUsed;
+    }
+
+    public int getHelpTotal() {
+        return helpTotal;
+    }
+
+    public boolean isFreeDestin() {
+        return freeDestin;
     }
           
 }

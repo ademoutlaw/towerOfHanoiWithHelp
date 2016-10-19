@@ -20,84 +20,65 @@ import javax.swing.JPanel;
  */
 public class TowerPanel extends JPanel implements MouseMotionListener {
     
-    private static final int POLE_A = 100;
-    private static final int POLE_B = 300;
-    private static final int POLE_C = 500;
-    
+    private static final int POLE_A = 110;
+    private static final int POLE_B = 330;
+    private static final int POLE_C = 550;
     private static final int DISC_HEIGHT = 16;
     private static final int PANEL_HEIGHT = 350;
-    
+    private static final int PANEL_WIDTH = 670;
     public static final char MOVE = 'm';
     public static final char SELECT = 's';
     public static final char DESELECT = 'd';
-    
     public static final char TOWER_A = 'a';
     public static final char TOWER_B = 'b';
-    public static final char TOWER_C = 'c';
-        
+    public static final char TOWER_C = 'c';   
+    public static final char GAP = '_';   
     private List<Integer> towerA;
     private List<Integer> towerB;
     private List<Integer> towerC;
-    
     private boolean isSelected;
     private boolean isMoving;
-    
+    private boolean error;
+    private boolean click;
     private int poleTo;
     private int poleFrom;
     private int direction;
     private int currentDisc;
     private int currentDiscX;
     private int currentDiscY;
-    private int pole;
-    private int [] frameRate;
-    private double walked;
     private int hoveredPole;
+    private int fps;
+    private int pole;
+    private double walked;
+    private final int [] frameDrawed;
     private final Color colorHover;
     private final Color colorClick;
-    private boolean error;
-    private Color colorError;
-    private boolean click;
-    private int fps;
-    
+    private final Color colorError;
+    private boolean ready;
+    private int up;
+    private int down;
+    private int horizontal;
 
     public TowerPanel() {  
-        this.frameRate = new int[]{0, 0, 0};
-        
-        setPreferredSize(new Dimension(600,350));
-        
+        frameDrawed = new int[]{0, 0, 0, 0};        
+        setPreferredSize(new Dimension(PANEL_WIDTH,PANEL_HEIGHT));        
         colorHover = new Color(255, 255, 0, 30);
         colorClick = new Color(255, 255, 0, 100);
-        colorError = new Color(255, 0, 0, 220);
-        
+        colorError = new Color(255, 0, 0, 220);        
         setOpaque(false);        
         isSelected=true; 
-        addMouseMotionListener(this);
+        addMouseMotionListener(this);        
     }
         
     @Override
     protected void paintComponent(Graphics g) {        
-        //super.paintComponent(g); 
+        super.paintComponent(g); 
         paintTowers(g);
         paintDiscs(g);
     }
     
     private void paintTowers(Graphics g){
-        if(hoveredPole>0){
-            if(error||click){
-                if(error){
-                    g.setColor(colorError);
-                    error = false;
-                }else{
-                   g.setColor(colorClick); 
-                   click = false;
-                }                
-            }else{
-                g.setColor(colorHover);
-            }
-            int x[]={hoveredPole+4,hoveredPole-100,hoveredPole+100};
-            int y[]={35,350,350};
-            g.fillPolygon(x, y, 3);
-        }
+        paintRolloverTower(g);
         
         g.setColor(Color.BLACK); 
         g.fillRect(POLE_A, 40, 10, 350);
@@ -109,7 +90,26 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
             g.setColor(Color.BLACK); 
             pole=0;
         }        
-        g.fillRect(0, 320, 600, 30);
+        g.fillRect(0, 320, PANEL_WIDTH, 30);
+    }
+
+    private void paintRolloverTower(Graphics g) {
+        if(hoveredPole>0){
+            if(error||click){
+                if(error){
+                    g.setColor(colorError);
+                    error = false;
+                }else{
+                    g.setColor(colorClick);
+                    click = false;
+                }                
+            }else{
+                g.setColor(colorHover);
+            }
+            int x[]={hoveredPole+4,hoveredPole-110,hoveredPole+110};
+            int y[]={35,350,350};
+            g.fillPolygon(x, y, 3);
+        }
     }
     
     private void paintDiscs(Graphics g){          
@@ -130,10 +130,12 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
         if(list!=null){
             for(int i=0;i<list.size()+minus;i++){
                 int disc = list.get(i);
-                if(disc<0){
+                
+                if(disc<0){                    
                     dropDisc(g, center,posY,disc,list,i);                
                     break;
                 }
+                
                 g.fillRoundRect(getPosX(disc,center), posY, disc*18, DISC_HEIGHT, 18, 18);
                 posY-=DISC_HEIGHT+1;
             }  
@@ -146,48 +148,77 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
         hideTower(towerC);       
     }
     
-    protected void setTowers(List listA, List listB, List listC) {        
+    protected void setTowers(List listA, List listB, List listC) {    
+        isMoving = false;
+        isSelected = false;
+        currentDisc = 0;
         towerA=listA;
         towerB=listB;
         towerC=listC;
     }
         
-    protected void setAction(char actionName,char from , char to ,int disc){        
+    protected void setAction(char actionName, char from , char to , int disc){        
         switch(actionName){
             case GameFrame.MOVE_FAST:
-                isMoving = true;
-                isSelected = false;
-                fps = 30;
+                moveFast();
                 break;
             case GameFrame.MOVE:
-                click = true;
-                isMoving = true;
-                isSelected = false;
-                walked = 0;
-                fps = 80;
+                move();
                 break;
             case GameFrame.SELECT:
-                click = true;
-                isSelected = true;
-                isMoving = false;
+                select();
                 break;
             case GameFrame.DESELECT_ERR:
                 error=true;                
             case GameFrame.DESELECT:
-                click = true;
-                isSelected = false;
-                isMoving = false;
+                deselect();
                 break;
             default:
                 return;   
         }
         poleFrom = getPole(from);
         poleTo = getPole(to);
-        direction = poleFrom<poleTo?1:-1;
         currentDisc=disc;
+        setMove();
+    }
+
+    private void deselect() {
+        click = true;
+        isSelected = false;
+        isMoving = false;
+    }
+
+    private void select() {
+        click = true;
+        isSelected = true;
+        isMoving = false;
+    }
+
+    private void move() {
+        click = true;
+        isMoving = true;
+        isSelected = false;
+        ready = false;
+        walked = 0;
+        fps = 80;
+        
+    }
+
+    private void setMove() {
+        if(isMoving){
+            up = getPosY(poleFrom);
+            down = getPosY(poleTo);
+            direction = poleFrom<poleTo?1:-1;
+            horizontal = direction*(poleTo-poleFrom);            
+        }
+    }
+
+    private void moveFast() {
+        move();
+        fps = 30;
     }
     
-    private int getPole(char tower){
+    private int getPole(char tower){        
         switch(tower){
             case TOWER_A:
                 return POLE_A;               
@@ -197,8 +228,7 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
                 return POLE_C;
             default:
                 return 0;            
-        }
-        
+        }        
     }
     
     private int getPosX(int disc, int center) {        
@@ -210,16 +240,12 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
             g.setColor(Color.green);            
             g.fillRoundRect(getPosX(currentDisc, poleFrom), getPosY(poleFrom)-6, currentDisc * 18,
                    DISC_HEIGHT, 18, 18);
-        }
-        
+        }        
     }
    
     private void paintWalkedDisc(Graphics g) {
         if(isMoving){
-            int distance = getDistance();            
-            walked++;
-            int walk = (int) map (walked,0,fps,0,distance);
-            walking(walk);
+            walking();
             g.setColor(Color.green);
             g.fillRoundRect(currentDiscX,currentDiscY , currentDisc * 18,
                    DISC_HEIGHT, 18, 18);
@@ -244,55 +270,53 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
 
     private void hideTower(List<Integer> tower) {
         for(int i = 0;i<tower.size();i++){
-            int x = tower.get(i);
-            tower.set(i, -x);
+            tower.set(i, -tower.get(i));
+            frameDrawed[3]++;
         }        
     }
 
     private void dropDisc(Graphics g, int center, int posY,int disc, List<Integer> list, int i) {
         int j = center / (POLE_A *2);
-        frameRate[j]++;
-        int pos =(int) map(frameRate[j],0,10,0,posY);
+        frameDrawed[j]++;
+        ready =false;
+        int pos =(int) map(frameDrawed[j],0,10,0,posY);
         g.fillRoundRect(getPosX(-disc,center), pos, -disc*18, DISC_HEIGHT, 18, 18);
-        if(frameRate[j]>=10){
+        if(frameDrawed[j]>=10){
            list.set(i, -disc);
-           frameRate[j] = 0;
+           frameDrawed[j] = 0;
+           frameDrawed[3]--;
+           if(frameDrawed[3]<=0){
+               ready = true;
+           }
+          
         }
     }
 
     private double map(double value1, double min1, double max1, double min2, double max2) {
         return min2 + (max2 - min2) / (max1-min1) * (value1-min1);       
     }
-
-    private int getDistance() {
-        return getPosY(poleTo)+getPosY(poleFrom)+Math.abs(poleTo-poleFrom);   
-    }
-
-    private void walking(int walker) {
-        int up = getPosY(poleFrom);
-        if(walker >up){
-            int horizontal = Math.abs(poleTo-poleFrom);
-            if(walker >up + horizontal){
-                int down = getPosY(poleTo);
-                if(walker > up + horizontal + down){
+    
+    private void walking() {                
+        walked++;
+        int walk = (int) map (walked,0,fps,0,up+down+horizontal);        
+        if(walk >up){            
+            if(walk >up + horizontal){                
+                if(walk > up + horizontal + down){
                     isMoving=false;
-                    walked = 0;                    
+                    walked = 0;  
+                    ready = true;
                 }else{
                     currentDiscX = getPosX(currentDisc,poleTo);
-                    currentDiscY = walker - up - horizontal; 
+                    currentDiscY = walk - up - horizontal; 
                 }
             }else{                
-                currentDiscX = getPosX(currentDisc,poleFrom+(walker-up)*direction);                
+                currentDiscX = getPosX(currentDisc,poleFrom+(walk-up)*direction);                
                 currentDiscY = 0;                
             }
         }else{
             currentDiscX = getPosX(currentDisc,poleFrom);
-            currentDiscY = up - walker;
+            currentDiscY = up - walk;
         }
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
     }
 
     @Override
@@ -301,6 +325,9 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
     }
 
     private char hover(int x) {
+        if(!ready){
+            return GAP;
+        }
         if(x>POLE_A-70 && x <POLE_A+70){
             setCursor(new Cursor(Cursor.HAND_CURSOR));
             hoveredPole = POLE_A;
@@ -318,10 +345,14 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
                 }else{
                     setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
                     hoveredPole = 0;
-                    return ' ';
+                    return GAP;
                 }
             }
         }
+    }
+    
+     @Override
+    public void mouseDragged(MouseEvent e) {
     }
            
 }

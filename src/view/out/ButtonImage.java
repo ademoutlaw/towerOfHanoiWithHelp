@@ -74,4 +74,5 @@ public class ButtonImage extends JButton{
         return new ImageIcon(new ImageIcon(url).getImage().getScaledInstance(size, size, Image.SCALE_DEFAULT)); 
     }
     
+    
 }

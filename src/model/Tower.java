@@ -20,10 +20,16 @@ public class Tower extends ArrayList<Integer>{
     protected Tower() {
         this(0);
     }
-
+    protected Tower(List<Integer> tower){
+        for(int t:tower){
+            add(t);
+        }
+    }
     protected Tower(int size ) {
         init(size);
     }
+
+    
     
     public boolean add(int disc){
         if( disc == 0 )
@@ -51,15 +57,8 @@ public class Tower extends ArrayList<Integer>{
             lastDiskSize=get(size() - 1);
         return  disck; 
     }
-
-    protected boolean accept(Disc disck) {
-        return disck.getSize()<lastDiskSize;
-    }
     
-    @Override
-    public String toString() {
-        return "Tower{" + "lastDiskSize=" + lastDiskSize + '}';
-    }
+    
 
     /**
      *
@@ -73,8 +72,16 @@ public class Tower extends ArrayList<Integer>{
         } 
     }
 
-    void setlastDisc(int i) {
-        lastDiskSize = i;
+    @Override
+    public String toString() {
+        String s="";
+        for(int x:this){
+            s+="|"+x;
+        }
+        return "Tower{discs: "+s + " lastDiskSize= " + lastDiskSize + '}';
     }
-               
+
+    
+           
+    
 }

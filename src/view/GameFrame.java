@@ -34,6 +34,7 @@ public class GameFrame extends JFrame implements ActionListener{
     public final static String BACK = "back";
     public final static String START = "start";
     public final static String NEW_GAME = "new game";
+    public final static String NEXT = "next";
     public final static String CONTINUE = "continue";
     public final static String MENU = "menu";
     
@@ -52,6 +53,7 @@ public class GameFrame extends JFrame implements ActionListener{
     
     
     
+    
             
     private final Timer timer;
     private final GamePanel gamePanel;
@@ -59,16 +61,17 @@ public class GameFrame extends JFrame implements ActionListener{
     //private final DialogPanel dialogPanel;
     
     private boolean isNewLevel;
-    private int frameRate;
+    private int frameToDraw;
     private int frameDrawed;
     private boolean wait;
     private final ConfirmPanel confirmPanel;
+    private boolean isNextLevel;
      
     public GameFrame() {     
 
         gamePanel = new GamePanel();
         levelsPanel = new LevelsPanel();
-        frameRate = 20;
+        frameToDraw = 20;
         levelsPanel.setFps(20);
         confirmPanel = new ConfirmPanel();
         
@@ -83,7 +86,7 @@ public class GameFrame extends JFrame implements ActionListener{
         //setBar();
         //getRootPane().setBorder(BorderFactory.createMatteBorder(0, 4, 4, 4,Color.white));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setMinimumSize(new Dimension(700,550));
+        setMinimumSize(new Dimension(710,550));
         //setLocation(200, 200);
         pack();
         setLocationRelativeTo(null);
@@ -130,11 +133,17 @@ public class GameFrame extends JFrame implements ActionListener{
         levelsPanel.setBounds(0, 0, this.getWidth(), this.getHeight());
         confirmPanel.setBounds(0, 0, this.getWidth(), this.getHeight());
         if(wait){
-            if(frameDrawed>=frameRate){
+            if(frameDrawed>=frameToDraw){
                 if(isNewLevel){
                     showGame();
                     gamePanel.loadTower();
                     isNewLevel = false;
+                    wait = false;
+                }else if(isNextLevel){
+                    confirmPanel.setConfirmType(ConfirmPanel.NEXT);
+                    showDialog();
+                    isNextLevel = false;
+                    wait = false;
                 }
             }else{
                 frameDrawed++;
@@ -158,7 +167,7 @@ public class GameFrame extends JFrame implements ActionListener{
     public void showLevels(){
         levelsPanel.setVisible(true);
         gamePanel.setVisible(false);
-        confirmPanel.setVisible(false);        
+        confirmPanel.setVisible(false);
     }
 
     public void errorLevel(int l) {
@@ -172,6 +181,7 @@ public class GameFrame extends JFrame implements ActionListener{
         gamePanel.setRedoEnabled(false);
         isNewLevel = true;
         frameDrawed = 0;
+        frameToDraw = 20;
         wait = true;
     }
 
@@ -180,7 +190,7 @@ public class GameFrame extends JFrame implements ActionListener{
     }
     
     public void setFrameRate(int frameRate) {
-        this.frameRate = frameRate;
+        this.frameToDraw = frameRate;
         levelsPanel.setFps(frameRate);
     }
 
@@ -196,11 +206,28 @@ public class GameFrame extends JFrame implements ActionListener{
         gamePanel.setSteps(steps);
     }
     
-    public void win(boolean win) {
-        wait = win;        
+    public void win() {
+        wait = true;   
+        frameDrawed = 0;
+        isNextLevel = true;
+        frameToDraw = 80 + 10;
     }
     
-    private void setBar() {
+    public void setHelp(int nbrHelpLeft, int nbrHelp) {
+        gamePanel.setHelp(nbrHelpLeft, nbrHelp);
+    }
+
+    public void next(int lastLevel) {
+        levelsPanel.setLevel(lastLevel);
+        showLevels();
+    }
+    
+    public void reload() {
+        gamePanel.loadTower();
+    }
+    
+}
+/*private void setBar() {
         //TODO: ???
         JMenuBar bar = new JMenuBar(){
             @Override
@@ -258,16 +285,4 @@ public class GameFrame extends JFrame implements ActionListener{
         //UIManager.put("MenuBar.background", Color.RED);
         //UIManager.put("Menu.background", Color.GREEN);
         // UIManager.put("MenuItem.background", Color.MAGENTA);     
-    }
-
-    public void setHelp(int nbrHelpLeft, int nbrHelp) {
-        gamePanel.setHelp(nbrHelpLeft, nbrHelp);
-    }
-
-    
-
-    
-
-    
-  
-}
+    }*/

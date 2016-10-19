@@ -5,7 +5,6 @@
  */
 package controller;
 
-import model.bot.Bot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -67,6 +66,9 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
             case GameFrame.MENU:
                 menu();
                 break;
+            case GameFrame.NEXT:
+                next();
+                break;
         }
     }
     
@@ -121,7 +123,7 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
             command.setAction(t);            
             updateFrame();
             if(command.isWin()){
-                frame.win(true);
+                frame.win();
                 currentFrame = DIALOG_FRAME;
             }
         }
@@ -131,8 +133,7 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
     private void updateFrame() {
         frame.setTowers(command.getTowerA(), command.getTowerB(), command.getTowerC());
         frame.setMove(convertAction(), getDiscFrom(), getDiscTo(), command.getDisc());
-        frame.setUndoRedoEnabled(command.hadUndo(),command.hadRedo());
-        
+        frame.setUndoRedoEnabled(command.hadUndo(),command.hadRedo());        
         frame.setSteps(command.getSteps());
         frame.setHelp(command.getNbrHeUsed(), command.getNbrHelp());
     }
@@ -184,8 +185,15 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
     }
     
     private void startGame() {
-        frame.showLevels();
-        currentFrame = LEVEL_FRAME;
+        if(command.isSaved()){
+            frame.showGame();
+            frame.reload();
+            currentFrame = GAME_FRAME;
+        }else{
+            frame.showLevels();
+            currentFrame = LEVEL_FRAME;
+        }
+        
     }
 
     private void continueGame() {
@@ -195,6 +203,16 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
 
     private void newGame() {
         frame.showLevels();
+        currentFrame = LEVEL_FRAME;
+    }
+    
+    private void next() {
+        if(command.next()){
+           frame.next(command.getLastLevel()); 
+           
+        }else{
+            frame.showLevels();
+        }
         currentFrame = LEVEL_FRAME;
     }
 
@@ -235,6 +253,7 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
     private void menu() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
 
     
 

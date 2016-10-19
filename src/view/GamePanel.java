@@ -31,14 +31,8 @@ public class GamePanel extends JPanel {
     private final Image imgBackground;
     private final TowerPanel towers;
    
-    private final JButton undoButton;
-    private final JButton redoButton;
-    private final JButton helpButton;
-    private final JButton menuButton;
-    private final ButtonImage reloadButton;
-    private final JLabel stepsLabel;
-    private final JLabel helpLabel;
-    private final JPanel buttonPanel;
+   
+    private final  ButtonsPanel buttons;
     
 
     public GamePanel() {
@@ -47,48 +41,16 @@ public class GamePanel extends JPanel {
         ImageIcon icon = new ImageIcon(url);
         imgBackground = icon.getImage();
         towers = new TowerPanel();
-                 
-        undoButton = new ButtonImage("undo.png");
-        redoButton = new ButtonImage("redo.png");
-        helpButton = new ButtonImage("help.png");
-        menuButton = new ButtonImage("menu.png",32);
-        reloadButton = new ButtonImage("reload.png");
+        buttons = new ButtonsPanel();
         
-        undoButton.setActionCommand(GameFrame.UNDO);
-        redoButton.setActionCommand(GameFrame.REDO);
-        helpButton.setActionCommand(GameFrame.HELP); 
-        menuButton.setActionCommand(GameFrame.MENU); 
-        reloadButton.setActionCommand(GameFrame.BACK); 
-        
-        undoButton.setToolTipText("undo the move");
-        redoButton.setToolTipText("redo the move");
-        helpButton.setToolTipText("get the best next move");
-        
-        helpLabel = new JLabel("1/1");
-        stepsLabel = new JLabel("0 step");        
-        helpLabel.setForeground(Color.green);
-        stepsLabel.setForeground(Color.green);        
-        helpLabel.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-        stepsLabel.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-        
-        buttonPanel = new JPanel();
-        buttonPanel.setBackground(new Color(0,0,0,200));
-        buttonPanel.setLayout(new GridLayout(1,7));
-        buttonPanel.add(reloadButton);
-        buttonPanel.add(undoButton);
-        buttonPanel.add(redoButton);
-        buttonPanel.add(stepsLabel);
-        buttonPanel.add(helpButton);
-        buttonPanel.add(helpLabel);
-        buttonPanel.add(menuButton);
         
         JPanel centerPanel = new JPanel();
-        centerPanel.setBorder(new EmptyBorder(0, 0, 50, 0));
+        centerPanel.setBorder(new EmptyBorder(0, 0, 50, 15));
         centerPanel.setOpaque(false);
         centerPanel.add(towers);
         
         setLayout(new BorderLayout());
-        add(buttonPanel,BorderLayout.NORTH);
+        add(buttons,BorderLayout.NORTH);
         add(centerPanel,BorderLayout.SOUTH);
         
     }
@@ -102,11 +64,7 @@ public class GamePanel extends JPanel {
     
     public void setListeners(MouseListener ml,ActionListener al){
         towers.addMouseListener(ml);
-        undoButton.addActionListener(al);
-        redoButton.addActionListener(al);
-        helpButton.addActionListener(al);        
-        reloadButton.addActionListener(al);        
-        menuButton.addActionListener(al);        
+        buttons.addActionListener(al);       
     }
 
     protected void loadTower() {
@@ -117,7 +75,7 @@ public class GamePanel extends JPanel {
         return towers.getTowerName(e);
     }
 
-    protected void setTowers(List<Integer> stkA, List<Integer> stkB, List<Integer> stkC) {
+    protected void setTowers(List<Integer> stkA, List<Integer> stkB, List<Integer> stkC) {        
         towers.setTowers(stkA, stkB, stkC);
     }
 
@@ -126,23 +84,23 @@ public class GamePanel extends JPanel {
     }
 
     protected void setRedoEnabled(boolean hadRedo) {
-        redoButton.setEnabled(hadRedo);
+        buttons.setRedoEnabled(hadRedo);
     }
 
     protected void setUndoEnabled(boolean hadUndo) {
-        undoButton.setEnabled(hadUndo);
+        buttons.setUndoEnabled(hadUndo);
     }
 
     protected void setSteps(int steps) {
         if(steps>1){
-            stepsLabel.setText(steps +" steps");
+            buttons.setSteps(steps +" steps");
         }else{
-            stepsLabel.setText(steps +" step");
+            buttons.setSteps(steps +" step");
         }
     }
 
     protected void setHelp(int nbrHelpLeft, int nbrHelp) {
-        helpLabel.setText(nbrHelpLeft+"/"+nbrHelp);
+        buttons.setHelp(nbrHelpLeft+"/"+nbrHelp);
     }
     
     
