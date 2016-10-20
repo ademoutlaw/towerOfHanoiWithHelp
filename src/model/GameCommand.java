@@ -12,7 +12,7 @@ import model.bot.Bot;
  *
  * @author outlaw
  */
-public class Command {
+public class GameCommand {
     
     public static final char TOWER_A = 'A';
     public static final char TOWER_C = 'C';
@@ -45,10 +45,11 @@ public class Command {
     private int helpTotal;
     private boolean freeDestin;
     private boolean win;
+    
 
     
 
-    public Command() {
+    public GameCommand() {
         this.towerA = Loader.towerA;
         this.towerB = Loader.towerB;
         this.towerC = Loader.towerC;
@@ -97,11 +98,11 @@ public class Command {
     
     private Tower getTower(char towerName) {
         switch(towerName){
-            case Command.TOWER_A:
+            case GameCommand.TOWER_A:
                 return towerA;
-            case Command.TOWER_B:
+            case GameCommand.TOWER_B:
                 return towerB;
-            case Command.TOWER_C:
+            case GameCommand.TOWER_C:
                 return towerC;
         }
         return null;
@@ -182,10 +183,10 @@ public class Command {
     }
 
     public boolean setLevel(int l) { 
-        if(saved&&lastLevel==l){
+        /*if(saved&&lastLevel==l){
             saved = false;
             return true;
-        }
+        }*/
         if(l <=lastLevel&&l>0){
             steps = 0;
             helpUsed = 0;
@@ -209,6 +210,10 @@ public class Command {
     }
 
     public void help() {
+        if(isSelected){
+            isSelected=false;
+            getTower(discFrom).add(disc);
+        }
         bot.help();
         action = MOVE_FAST;
         disc = bot.getDisc();
@@ -217,6 +222,7 @@ public class Command {
         getTower(discTo).add(getTower(discFrom).getLasDisck());
         steps++;
         helpUsed++;
+        stack.addMovement(discFrom,discTo,disc);
     }
 
     public int getNbrHeUsed() {
@@ -254,5 +260,11 @@ public class Command {
     public boolean isFreeDestin() {
         return freeDestin;
     }
+
+    
+
+    
+    
+    
           
 }

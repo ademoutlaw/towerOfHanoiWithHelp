@@ -122,7 +122,9 @@ abstract public class Paint {
         }
         return false;
     }
-    
+    public boolean clicked(JButton button) {
+        return clicked(x,y,button);
+    }
     public void setDisable(boolean disable) {
         this.disable = disable;
     }

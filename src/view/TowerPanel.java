@@ -58,8 +58,10 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
     private int up;
     private int down;
     private int horizontal;
+    private int speed;
 
     public TowerPanel() {  
+        speed =80;
         frameDrawed = new int[]{0, 0, 0, 0};        
         setPreferredSize(new Dimension(PANEL_WIDTH,PANEL_HEIGHT));        
         colorHover = new Color(255, 255, 0, 30);
@@ -200,7 +202,7 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
         isSelected = false;
         ready = false;
         walked = 0;
-        fps = 80;
+        fps = speed;
         
     }
 
@@ -318,7 +320,11 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
             currentDiscY = up - walk;
         }
     }
-
+    
+    void setSpeed(int speed) {
+        this.speed = speed;
+    }
+    
     @Override
     public void mouseMoved(MouseEvent e) {
         hover(e.getX());
@@ -354,5 +360,7 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
      @Override
     public void mouseDragged(MouseEvent e) {
     }
+
+    
            
 }

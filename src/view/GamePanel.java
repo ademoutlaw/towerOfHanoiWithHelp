@@ -102,6 +102,10 @@ public class GamePanel extends JPanel {
     protected void setHelp(int nbrHelpLeft, int nbrHelp) {
         buttons.setHelp(nbrHelpLeft+"/"+nbrHelp);
     }
+
+    void setSpeed(int speed) {
+        towers.setSpeed(speed);
+    }
     
     
     

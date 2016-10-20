@@ -5,21 +5,13 @@
  */
 package view;
 
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.util.List;
-import javax.swing.BorderFactory;
 import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.Timer;
 
 /**
@@ -37,6 +29,8 @@ public class GameFrame extends JFrame implements ActionListener{
     public final static String NEXT = "next";
     public final static String CONTINUE = "continue";
     public final static String MENU = "menu";
+    public final static String SPEED = "speed";
+    public final static String SAVE = "save";
     
     public static final char MOVE = 'm';
     public static final char MOVE_FAST = 'f';
@@ -58,7 +52,6 @@ public class GameFrame extends JFrame implements ActionListener{
     private final Timer timer;
     private final GamePanel gamePanel;
     private final LevelsPanel levelsPanel;
-    //private final DialogPanel dialogPanel;
     
     private boolean isNewLevel;
     private int frameToDraw;
@@ -83,11 +76,8 @@ public class GameFrame extends JFrame implements ActionListener{
         add(levelsPanel);
         add(gamePanel);
         
-        //setBar();
-        //getRootPane().setBorder(BorderFactory.createMatteBorder(0, 4, 4, 4,Color.white));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setMinimumSize(new Dimension(710,550));
-        //setLocation(200, 200);
         pack();
         setLocationRelativeTo(null);
         setVisible(true);        
@@ -224,6 +214,27 @@ public class GameFrame extends JFrame implements ActionListener{
     
     public void reload() {
         gamePanel.loadTower();
+    }
+
+    public int getSpeed() {
+        return confirmPanel.getSpeed();
+    }
+
+    public void setSpeed(int speed) {
+        gamePanel.setSpeed(speed);
+    }
+
+    public void menu() {
+        confirmPanel.setConfirmType(ConfirmPanel.MENU);
+        showDialog();
+    }
+
+    public boolean isSoundMuted() {
+        return confirmPanel.isSoundMuted();
+    }
+
+    public boolean isMusicMuted() {
+        return confirmPanel.isMusicMuted();
     }
     
 }

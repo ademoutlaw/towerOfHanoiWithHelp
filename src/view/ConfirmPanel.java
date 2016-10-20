@@ -8,7 +8,6 @@ package view;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -17,40 +16,51 @@ import java.awt.event.MouseMotionListener;
 import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 /**
  *
  * @author outlaw
  */
+
 public  class ConfirmPanel extends JPanel implements MouseListener, MouseMotionListener{
     
     public static final char START = 's';
     public static final char CONTINUE = 'c';
     public static final char NEXT = 'n';
-
-    /*private final JPanel panel;
-    private final JButton button1;
-    private final JButton button2;
-    private final JLabel message;*/
+    public static final char MENU = 'm';
+    
     private char type;
-    private int h;
-    private int w;
-    //private final Color black;
     private final Section menu;
     private final Section startGame;
     private final Section newGame;
-    private final Section exit;
+    private final Section exitGame;
     private final Section nextLevel;
     private Section section;
     private final Image dialogImg;
-    private JButton button;
+    private final JButton button;
+    private int sliderX;
+    private final int sliderY;
+    private boolean toDraged;
+    private ButtonIcon circleBtn;
+    private Image img;
+    private boolean soundMuted;
+    private boolean musicMuted;
+    private ButtonIcon musicMutedBtn;
+    private ButtonIcon musicUnmutedBtn;
+    private ButtonIcon soundUnmutedBtn;
+    private ButtonIcon soundMutedBtn;
+    private ButtonIcon chekedBtn;
+    private boolean cheked;
+    
     public ConfirmPanel() {
+        
+        sliderX =250;
+        sliderY = 150;
         button = new JButton();
         dialogImg = getImage("dialog.png"); 
+        soundMuted =false;
+        musicMuted =false;
         JPanel panel = new JPanel(){
                  @Override
                 protected void paintComponent(Graphics g) {
@@ -58,44 +68,21 @@ public  class ConfirmPanel extends JPanel implements MouseListener, MouseMotionL
                     paintConfirm(g);
                 }
             };
-        panel.setBackground(Color.green);
         
+        panel.setBackground(Color.green);        
         menu = getMenu();
         startGame = getStartGame();
         newGame = getResume();
         nextLevel = getNextLevel();
-        exit = getExit();
+        exitGame = getExitGame();
         section = newGame;
-        Dimension d = new Dimension(500,500);
-        //setOpaque(false);
+        Dimension d = new Dimension(500,500);        
         panel.addMouseListener(this);
         panel.addMouseMotionListener(this);
         panel.setPreferredSize(d);
         panel.setOpaque(false);
         add(panel);
-        setBackground(new Color(0,0,0,100));
-        //panel.setSize(d);
-        /* black = new Color(0,0,0,200);
-        type = START;
-        panel = new JPanel();
-        button1 =  new JButton();
-        button2 = new JButton();
-        message = new JLabel();
-        message.setText("Are You Sure Want To Restart?");
-        setBackground(black);
-        //setOpaque(false);
-        panel.add(message);
-        panel.add(button1);
-        panel.add(button2);
-        Dimension d = new Dimension(500,200);
-        panel.setOpaque(false);
-        panel.setSize(d);
-        
-        setLayout(null);
-        add(panel);
-        
-        
-        //message.setVisible(false);*/
+        setBackground(new Color(0,0,0,100));        
     }
 
    
@@ -106,18 +93,9 @@ public  class ConfirmPanel extends JPanel implements MouseListener, MouseMotionL
         g.drawImage(dialogImg, 0, 20, 500, 400, this);
         section.paint(g);   
     }
+    
     protected void setConfirmType(char type) {
         this.type = type;   
-        drawComponent();
-    }
-
-    protected void addListener(ActionListener action) {
-        button.addActionListener(action);
-        
-    }
-
-    private void drawComponent() {
-        
         switch(type){
             case START:
                 section = startGame;
@@ -128,28 +106,75 @@ public  class ConfirmPanel extends JPanel implements MouseListener, MouseMotionL
             case NEXT:
                 section = nextLevel;
                 break;
+            case MENU:
+                section = menu;
+                break;
         }
-        
-       
     }
-    
 
+    protected void addListener(ActionListener action) {
+        button.addActionListener(action);
+        
+    }
+
+        
 
     private Section getMenu() {
-        return null;
+        img = getImage("cancel.png");
+        ButtonIcon cancel = new ButtonIcon(img,360,320,64,64);
+        img = getImage("save.png");
+        ButtonIcon save = new ButtonIcon(img,50,320,64,64);
+        img = getImage("sound.png");
+        soundUnmutedBtn = new ButtonIcon(img,150,80,46,46);
+        img = getImage("music.png");
+        musicUnmutedBtn = new ButtonIcon(img,250,80,46,46);
+        img = getImage("sound_mute.png");
+        soundMutedBtn = new ButtonIcon(img,150,80,46,46);
+        img = getImage("music_mute.png");
+        musicMutedBtn = new ButtonIcon(img,250,80,38,46);
+        img = getImage("circle.png");
+        circleBtn = new ButtonIcon(img,250,60,16,16);        
+        circleBtn.setLocal(sliderX, sliderY);
+        Section sect = new Section();
+        img = getImage("slider.png");
+        ButtonIcon slider = new ButtonIcon(img,90,130,300,46);
+        img = getImage("rect.png");
+        ButtonIcon rect = new ButtonIcon(img,90,200,46,46);
+        img = getImage("cheked.png");
+        chekedBtn = new ButtonIcon(img,100,190,46,46);
+        img = getImage("exit.png");
+        ButtonIcon exit = new ButtonIcon(img,170,250,80,64);
+        img = getImage("free.png");
+        ButtonIcon label = new ButtonIcon(img,160,200,180,46);
+        exit.setCmd("exit"); 
+        cancel.setCmd("continue"); 
+        save.setCmd("save"); 
+        setSoundMuted(true);
+        setMusicMuted(true);
+        circleBtn.disabled();
+        musicMutedBtn.disabled();
+        soundMutedBtn.disabled();
+        musicUnmutedBtn.disabled();
+        soundUnmutedBtn.disabled();
+        slider.disabled();
+        sect.add(musicMutedBtn);
+        sect.add(musicUnmutedBtn);
+        sect.add(soundMutedBtn);
+        sect.add(soundUnmutedBtn);
+        sect.add(label);
+        
+        sect.add(slider);
+        sect.add(rect);
+        sect.add(chekedBtn);
+        sect.add(exit);
+        sect.add(save);
+        sect.add(cancel);
+        sect.add(circleBtn);
+        return sect;
     }
 
-    
-    private Image getImage(String img){
-        URL url  = getClass().getResource("/view/images/"+img);
-        if (url==null)
-            return null;
-        
-        return new ImageIcon(url).getImage(); 
-    }
-    
     private Section getStartGame() {
-        Image img = getImage("start.gif");
+        img = getImage("start.gif");
         ButtonIcon btn1 = new ButtonIcon(img,50,50,400,200);
         img = getImage("play.png");
         ButtonIcon btn2 = new ButtonIcon(img,200,300,64,64);
@@ -158,12 +183,26 @@ public  class ConfirmPanel extends JPanel implements MouseListener, MouseMotionL
         Section sect = new Section(); 
         sect.add(btn1);
         sect.add(btn2);
-        return sect;
-        
+        return sect;        
+    }
+    
+    private void draged(MouseEvent e){
+        if(!toDraged&&e.getX() >= sliderX && e.getY() >= sliderY){
+            toDraged = true;
+        }
+        if(toDraged){
+            sliderX = e.getX();
+            if(e.getX()<135)
+                sliderX = 135;
+            if(e.getX()>299)
+                sliderX = 299;
+                
+            circleBtn.setLocal(sliderX, sliderY);
+        }
     }
     
     private Section getResume() {
-        Image img = getImage("continue.png");
+        img = getImage("continue.png");
         ButtonIcon btn1 = new ButtonIcon(img,50,50,400,200);
         img = getImage("resume.png");
         ButtonIcon btn2 = new ButtonIcon(img,100,300,128,64);
@@ -175,17 +214,16 @@ public  class ConfirmPanel extends JPanel implements MouseListener, MouseMotionL
         Section sect = new Section(); 
         sect.add(btn1);
         sect.add(btn2);
-        sect.add(btn3);
-        
+        sect.add(btn3);        
         return sect;
     }
 
-    private Section getExit() {
+    private Section getExitGame() {
         return null;
     }
     
     private Section getNextLevel() {
-        Image img = getImage("win.png");
+        img = getImage("win.png");
         ButtonIcon btn1 = new ButtonIcon(img,50,50,400,200);
         img = getImage("next.png");
         ButtonIcon btn2 = new ButtonIcon(img,190,200,256,256);
@@ -197,12 +235,61 @@ public  class ConfirmPanel extends JPanel implements MouseListener, MouseMotionL
         return sect;
     }
     
+    private Image getImage(String img){
+        URL url  = getClass().getResource("/view/images/"+img);
+        if (url==null)
+            return null;        
+        return new ImageIcon(url).getImage(); 
+    }
   
-
+    public void setSoundMuted(boolean mute){
+        soundMuted =  mute;
+        soundMutedBtn.setVisible(mute);
+        soundUnmutedBtn.setVisible(!mute);
+    }
+    
+    public void setMusicMuted(boolean mute){ 
+        musicMuted =  mute;
+        musicMutedBtn.setVisible(mute);
+        musicUnmutedBtn.setVisible(!mute);       
+    }
+    
+    private void musicClick(MouseEvent e){ 
+        if(musicMutedBtn.isInclud(e.getX(), e.getY())){
+            musicMuted =  !musicMuted;
+            setMusicMuted(musicMuted);      
+        }
+    }
+    
+    private void soundClick(MouseEvent e){ 
+        if(soundMutedBtn.isInclud(e.getX(), e.getY())){
+            soundMuted =  !soundMuted;
+            setSoundMuted(soundMuted);      
+        }
+    }
+    
+    public void setCheked(boolean cheked){
+        this.cheked = cheked;
+        chekedBtn.setVisible(cheked); 
+    }
+    
+    private void chkedClick(MouseEvent e){ 
+        if(chekedBtn.isInclud(e.getX(), e.getY())){
+            cheked =  !cheked;
+            chekedBtn.setVisible(cheked);      
+        }
+    }
+    
+    public int getSpeed(){        
+        return  (30) / (299-135) * (sliderX-135);        
+    }
+    
     @Override
-    public void mouseClicked(MouseEvent e) {
+    public void mouseClicked(MouseEvent e) {        
         section.clicked(e.getX(), e.getY(), button);
-        System.out.println("eeeeeeeeeeeeee");
+        soundClick(e);
+        musicClick(e);
+        chkedClick(e);
     }
 
     @Override
@@ -211,6 +298,7 @@ public  class ConfirmPanel extends JPanel implements MouseListener, MouseMotionL
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        toDraged = false;
     }
 
     @Override
@@ -223,72 +311,21 @@ public  class ConfirmPanel extends JPanel implements MouseListener, MouseMotionL
 
     @Override
     public void mouseDragged(MouseEvent e) {
+        //System.out.println(e.getX()+" "+e.getY());
+        draged(e);
+        
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
     }
-    
-     /*     
-    private void drawStart() {
-        message.setText("<html><p>The goal of the puzzle is to move all the disks<br> from the leftmost peg "
-        + "to the rightmost peg, adhering to the following rules:</p>"
-        + "<p>--- Move only one disk at a time.</p>"
-        + "<p>--- A larger disk may not be placed ontop of a smaller disk.</p>"
-        + "<p>--- All disks, except the one being moved, must be on a peg.</p>"
-        + "</html>");
-        //<html><p><b>The goal of the puzzle is to move all the disks from the leftmost peg to the rightmost peg, adhering to the following rules:\n" +
-        //"\n" +
-        //"Move only one disk at a time.\n" +
-        //"A larger disk may not be placed ontop of a smaller disk.\n" +
-        //"All disks, except the one being moved, must be on a peg.</b></p></html>");
-        message.setLocation(200, 60);
-        button1.setText("START");
-        button1.setLocation(50, 50);
-        button1.setActionCommand(GameFrame.START);
-        button2.setVisible(false);
-        }
 
-        private void drawContinue() {
-        message.setText("Dou you want continue or start a new game?");
-        button1.setText("new game");
-        button2.setText("continue");
-        button2.setVisible(true);
-        message.setLocation(150, 50);
-        button1.setLocation(180, 70);
-        button2.setLocation(90, 70);
+    public boolean isSoundMuted() {
+        return soundMuted;
+    }
 
-        button1.setActionCommand(GameFrame.NEW_GAME);
-        button2.setActionCommand(GameFrame.CONTINUE);
-
-        }
-
-        private void paintDialog(Graphics g) {
-        if(w != getWidth() || h != getHeight()){
-        w = getWidth();
-        h = getHeight();
-        panel.setLocation(w/2-250, h/2-100);
-
-        }
-        //g.setColor(black);
-        //g.fillRect(0, 0,w, h);
-        g.setColor(Color.red);
-        g.fillRoundRect(w/2-250, h/2-100, 500, 200, 50, 50);
-        Graphics2D g2 = (Graphics2D) g;
-        //g2.draw(null);
-
-        }
-
-        private void drawNext() {
-        panel.setLayout(null);
-        message.setText("barvoo!! you win ");
-        message.setLocation(200, 60);
-        button1.setText("NEXT");
-        button1.setLocation(150, 150);
-        button1.setActionCommand(GameFrame.NEXT);
-        button2.setVisible(false);
-        }
-    */ 
-
+    public boolean isMusicMuted() {
+        return musicMuted;
+    }
     
 }

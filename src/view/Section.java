@@ -32,7 +32,6 @@ public class Section {
     
     public void paint(Graphics g){
         buttons.stream().forEach((button) -> {
-            //System.out.println("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
             button.paint(g);
         });
         
@@ -60,6 +59,7 @@ public class Section {
             //jButton.doClick();
         });
     }
+    
     public void clicked(int x, int y, JButton btn){
         System.out.println("hhhhhhhhhhhhhhhhhhh");
         for(Paint button:buttons){
@@ -69,16 +69,19 @@ public class Section {
             }
         }
     }
+    
     public void disabled(){
         buttons.stream().forEach((button) -> {
             button.disabled();
         });
     }
+    
     public void disabled(int x, int y){
         buttons.stream().forEach((button) -> {
             button.disabled(x, y);
         });
     }
+    
     public void ready(){
         buttons.stream().forEach((button) -> {
             button.ready();

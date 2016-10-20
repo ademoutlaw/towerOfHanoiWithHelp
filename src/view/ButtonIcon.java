@@ -23,6 +23,7 @@ public class ButtonIcon  extends Paint{
 
     private String cmd;
     private boolean sleep;
+    private boolean visible;
     
     public ButtonIcon(Image image, Image imagePressed, Image imageRollover, Image imageDisable, int x, int y, int width, int height) {
         this.image = image;
@@ -34,6 +35,7 @@ public class ButtonIcon  extends Paint{
         this.y = y;
         this.width = width;
         this.height = height;
+        visible = true;
     }
 
     public ButtonIcon() {
@@ -79,7 +81,7 @@ public class ButtonIcon  extends Paint{
     public Image getCurrentImage() {
         return currentImage;
     }
-
+    
     @Override
     public void rollover(int x, int y) {
         if(isInclud(x, y)){
@@ -133,7 +135,8 @@ public class ButtonIcon  extends Paint{
 
     @Override
     public void paint(Graphics g) {
-        g.drawImage(currentImage, x, y, width, height, null);
+        if(visible)
+            g.drawImage(currentImage, x, y, width, height, null);
     }
      
     public String getCommand(){
@@ -174,4 +177,10 @@ public class ButtonIcon  extends Paint{
     public void disabled() {
         setDisable(true);
     }
+
+    void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+    
 }

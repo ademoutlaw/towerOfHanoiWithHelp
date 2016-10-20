@@ -37,8 +37,8 @@ public class Stack {
 
     protected boolean undo() { 
         if(undo.isEmpty()){
-            from = Command.EMPTY;
-            to = Command.EMPTY;
+            from = GameCommand.EMPTY;
+            to = GameCommand.EMPTY;
             disc = 0;
             return false;
         }
@@ -51,8 +51,8 @@ public class Stack {
     }
     protected boolean redo() { 
         if(redo.isEmpty()){
-            from = Command.EMPTY;
-            to = Command.EMPTY;
+            from = GameCommand.EMPTY;
+            to = GameCommand.EMPTY;
             disc = 0;
             return false;
         }

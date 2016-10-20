@@ -10,7 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.SwingUtilities;
-import model.Command;
+import model.GameCommand;
 import view.GameFrame;
 import view.TowerPanel;
 
@@ -24,19 +24,21 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
     private final char DIALOG_FRAME = 'd';
     private final char GAME_FRAME = 'g';
     
-    private final Command command;
+    private final GameCommand game;
     private final GameFrame frame;
-    
+    int speed;
+    boolean musicMuted;
+    boolean soundMuted;
 
     private char currentFrame;
     
     
     public TowerOfHanoi() {
-        command = new Command();
+        game = new GameCommand();//Loader.getGame();
         frame = new GameFrame();
+        frame.setGame(game.getTowerA(),game.getTowerB(),game.getTowerC(), game.getLastLevel());
+        updateFrame();  
         frame.setListeners(this,this);
-        frame.setGame(command.getTowerA(),command.getTowerB(),command.getTowerC(), command.getLastLevel());
-                
     }
       
      @Override
@@ -69,6 +71,9 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
             case GameFrame.NEXT:
                 next();
                 break;
+            case GameFrame.SAVE:
+                save();
+                break;
         }
     }
     
@@ -79,25 +84,25 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
         } 
         switch(currentFrame){
             case LEVEL_FRAME:
-                getLevel(e);             
+                chooseLevel(e);             
                 break;
             case DIALOG_FRAME:                
                 System.out.println("dialog");                
                 break;
             case GAME_FRAME:
-                setAction(e);
+                shifting(e);
                 System.out.println("game");                
                 break;
         }
     }
 
-    private void getLevel(MouseEvent e) {
+    private void chooseLevel(MouseEvent e) {
         int l = frame.getLevel(e);
         if(l>0){
-            if(command.setLevel(l)){
-                frame.acceptLevel(command.getTowerA(),command.getTowerB(),command.getTowerC(),l);
-                frame.setSteps(command.getSteps());
-                frame.setHelp(command.getNbrHeUsed(), command.getNbrHelp());
+            if(game.setLevel(l)){
+                frame.acceptLevel(game.getTowerA(),game.getTowerB(),game.getTowerC(),l);
+                frame.setSteps(game.getSteps());
+                frame.setHelp(game.getNbrHeUsed(), game.getNbrHelp());
                 currentFrame = GAME_FRAME;
             }else{
                 frame.errorLevel(l);
@@ -108,21 +113,21 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
     private char getTowerName(MouseEvent e){
         switch (frame.getTowerName(e)){
             case TowerPanel.TOWER_A:
-                return Command.TOWER_A;
+                return GameCommand.TOWER_A;
             case TowerPanel.TOWER_B:
-                return Command.TOWER_B;
+                return GameCommand.TOWER_B;
             case TowerPanel.TOWER_C:
-                return Command.TOWER_C;
+                return GameCommand.TOWER_C;
         }
         return ' ';        
     }
       
-    private void setAction(MouseEvent e) {
+    private void shifting(MouseEvent e) {
         char t = getTowerName(e);
         if( t != GameFrame.GAP){
-            command.setAction(t);            
+            game.setAction(t);            
             updateFrame();
-            if(command.isWin()){
+            if(game.isWin()){
                 frame.win();
                 currentFrame = DIALOG_FRAME;
             }
@@ -131,44 +136,44 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
     }
 
     private void updateFrame() {
-        frame.setTowers(command.getTowerA(), command.getTowerB(), command.getTowerC());
-        frame.setMove(convertAction(), getDiscFrom(), getDiscTo(), command.getDisc());
-        frame.setUndoRedoEnabled(command.hadUndo(),command.hadRedo());        
-        frame.setSteps(command.getSteps());
-        frame.setHelp(command.getNbrHeUsed(), command.getNbrHelp());
+        frame.setTowers(game.getTowerA(), game.getTowerB(), game.getTowerC());
+        frame.setMove(convertAction(), getDiscFrom(), getDiscTo(), game.getDisc());
+        frame.setUndoRedoEnabled(game.hadUndo(),game.hadRedo());        
+        frame.setSteps(game.getSteps());
+        frame.setHelp(game.getNbrHeUsed(), game.getNbrHelp());
     }
 
     private char convertAction() {
-        switch(command.getAction()){
-            case Command.DESELECT:
+        switch(game.getAction()){
+            case GameCommand.DESELECT:
                 return GameFrame.DESELECT;
-            case Command.SELECT:
+            case GameCommand.SELECT:
                 return GameFrame.SELECT;
-            case Command.MOVE:
+            case GameCommand.MOVE:
                 return GameFrame.MOVE;
-            case Command.MOVE_FAST:
+            case GameCommand.MOVE_FAST:
                 return GameFrame.MOVE_FAST;
-            case Command.DESELECT_ERR:
+            case GameCommand.DESELECT_ERR:
                 return GameFrame.DESELECT_ERR;
         }
         return ' ';
     }
 
     private char getDiscFrom() {        
-        return convertTower(command.getDiscFrom());
+        return convertTower(game.getDiscFrom());
     }
 
     private char getDiscTo() {
-        return convertTower(command.getDiscTo());
+        return convertTower(game.getDiscTo());
     }
 
     private char convertTower(char tower) {
         switch(tower){
-            case Command.TOWER_A:
+            case GameCommand.TOWER_A:
                 return GameFrame.TOWER_A;
-            case Command.TOWER_B:
+            case GameCommand.TOWER_B:
                 return GameFrame.TOWER_B;
-            case Command.TOWER_C:
+            case GameCommand.TOWER_C:
                 return GameFrame.TOWER_C;
         }
         return ' ';
@@ -180,12 +185,12 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
     }
     
     private void help() {
-        command.help();        
+        game.help();        
         updateFrame();
     }
     
     private void startGame() {
-        if(command.isSaved()){
+        if(game.isSaved()){
             frame.showGame();
             frame.reload();
             currentFrame = GAME_FRAME;
@@ -200,6 +205,11 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
         frame.showGame();
         currentFrame = GAME_FRAME;
     }
+    
+    private void menu() {
+        frame.menu();
+        currentFrame = DIALOG_FRAME;
+    }
 
     private void newGame() {
         frame.showLevels();
@@ -207,9 +217,8 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
     }
     
     private void next() {
-        if(command.next()){
-           frame.next(command.getLastLevel()); 
-           
+        if(game.next()){
+           frame.next(game.getLastLevel());            
         }else{
             frame.showLevels();
         }
@@ -217,16 +226,28 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
     }
 
     private void undo() {
-        if(command.undo()){            
+        if(game.undo()){            
             updateFrame();
         }
     }
     
     private void redo() {
-        if(command.redo()){
+        if(game.redo()){
             updateFrame();
         }
     }  
+    
+    
+    
+    private void save() {
+        speed = frame.getSpeed();
+        musicMuted = frame.isMusicMuted();
+        soundMuted = frame.isSoundMuted();
+        frame.setSpeed(speed);
+        frame.showGame();
+        currentFrame = GAME_FRAME;
+        
+    }
     @Override
     public void mousePressed(MouseEvent e) {        
     }
@@ -250,9 +271,11 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
         
     }
 
-    private void menu() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    
+
+    
+
+    
 
 
     
