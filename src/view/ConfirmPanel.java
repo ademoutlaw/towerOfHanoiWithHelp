@@ -335,5 +335,9 @@ public  class ConfirmPanel extends JPanel implements MouseListener, MouseMotionL
     public boolean isMusicMuted() {
         return musicMuted;
     }
+
+    boolean isFreeDestin() {
+        return cheked;
+    }
     
 }
