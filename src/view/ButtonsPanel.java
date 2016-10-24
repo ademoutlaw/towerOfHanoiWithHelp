@@ -154,12 +154,12 @@ public class ButtonsPanel extends JPanel implements MouseListener, MouseMotionLi
     }
 
     void setUndoEnabled(boolean hadUndo) {
-        System.out.println("undo:"+!hadUndo);
+        //System.out.println("undo:"+!hadUndo);
         undoBtn.setDisable(!hadUndo);
     }
 
     void setRedoEnabled(boolean hadRedo) {
-        System.out.println("redo:"+!hadRedo);
+        //System.out.println("redo:"+!hadRedo);
         redoBtn.setDisable(!hadRedo);
     }
     

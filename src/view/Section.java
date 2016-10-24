@@ -61,10 +61,10 @@ public class Section {
     }
     
     public void clicked(int x, int y, JButton btn){
-        System.out.println("hhhhhhhhhhhhhhhhhhh");
+        //System.out.println("hhhhhhhhhhhhhhhhhhh");
         for(Paint button:buttons){
             if(button.clicked(x, y, btn)){
-                System.out.println("bbbbbbbbbbbbbbbbbb");
+                //System.out.println("bbbbbbbbbbbbbbbbbb");
                 break;
             }
         }

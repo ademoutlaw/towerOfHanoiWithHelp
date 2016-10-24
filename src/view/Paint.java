@@ -108,9 +108,9 @@ abstract public class Paint {
     }
 
     public boolean clicked(int x, int y, JButton btn) {
-        System.out.print("sssssssssssssssssssssss"+disable+" "+cmd);
-        System.out.print("///"+x+" "+y);
-        System.out.println("///"+this.x+" "+this.y);
+        //System.out.print("sssssssssssssssssssssss"+disable+" "+cmd);
+        //System.out.print("///"+x+" "+y);
+       // System.out.println("///"+this.x+" "+this.y);
         if(disable||sleep){
             return false;
         }

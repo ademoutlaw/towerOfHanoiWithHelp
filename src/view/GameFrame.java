@@ -31,6 +31,8 @@ public class GameFrame extends JFrame implements ActionListener{
     public final static String MENU = "menu";
     public final static String SPEED = "speed";
     public final static String SAVE = "save";
+    public final static String MUSIC = "mute music";
+    public final static String SOUND = "mute sound";
     
     public static final char MOVE = 'm';
     public static final char MOVE_FAST = 'f';
@@ -42,12 +44,6 @@ public class GameFrame extends JFrame implements ActionListener{
     public static final char TOWER_B = 'b';
     public static final char TOWER_C = 'c';
     public static final char GAP = ' ';
-    
-    
-    
-    
-    
-    
             
     private final Timer timer;
     private final GamePanel gamePanel;
@@ -59,6 +55,8 @@ public class GameFrame extends JFrame implements ActionListener{
     private boolean wait;
     private final ConfirmPanel confirmPanel;
     private boolean isNextLevel;
+    private final Sound dialogMusic;
+    private final Sound gameMusic;
      
     public GameFrame() {     
 
@@ -70,6 +68,9 @@ public class GameFrame extends JFrame implements ActionListener{
         
         timer = new Timer(30, this);
         timer.start();
+        
+        gameMusic = new Sound("play",true);
+        dialogMusic = new Sound("pause",true);
         
         setLayout(null);
         add(confirmPanel);
@@ -145,13 +146,17 @@ public class GameFrame extends JFrame implements ActionListener{
     public void showDialog(){
         levelsPanel.setVisible(false);
         gamePanel.setVisible(true);
-        confirmPanel.setVisible(true);        
+        confirmPanel.setVisible(true); 
+        dialogMusic.loop();
+        gameMusic.stop();
     }
     
     public void showGame(){
         levelsPanel.setVisible(false);
         gamePanel.setVisible(true);
-        confirmPanel.setVisible(false);        
+        confirmPanel.setVisible(false);
+        dialogMusic.stop();
+        gameMusic.loop();
     }
     
     public void showLevels(){

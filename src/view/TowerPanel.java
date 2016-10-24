@@ -61,7 +61,7 @@ public class TowerPanel extends JPanel implements MouseMotionListener {
     private int speed;
 
     public TowerPanel() {  
-        speed =80;
+        speed =180;
         frameDrawed = new int[]{0, 0, 0, 0};        
         setPreferredSize(new Dimension(PANEL_WIDTH,PANEL_HEIGHT));        
         colorHover = new Color(255, 255, 0, 30);

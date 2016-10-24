@@ -1,9 +1,13 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+*To change this license header, choose License Headers in Project Properties.
+*To change this template file, choose Tools | Templates
+*and open the template in the editor.
+*/
 package view;
+
+/*
+* Etape 6 : récupération du nom et du prénom
+*/
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -115,9 +119,7 @@ public  class ConfirmPanel extends JPanel implements MouseListener, MouseMotionL
     protected void addListener(ActionListener action) {
         button.addActionListener(action);
         
-    }
-
-        
+    }       
 
     private Section getMenu() {
         img = getImage("cancel.png");
@@ -137,7 +139,7 @@ public  class ConfirmPanel extends JPanel implements MouseListener, MouseMotionL
         circleBtn.setLocal(sliderX, sliderY);
         Section sect = new Section();
         img = getImage("slider.png");
-        ButtonIcon slider = new ButtonIcon(img,90,130,300,46);
+        ButtonIcon slider = new ButtonIcon(img,93,130,285,46);
         img = getImage("rect.png");
         ButtonIcon rect = new ButtonIcon(img,90,200,46,46);
         img = getImage("cheked.png");
@@ -152,10 +154,10 @@ public  class ConfirmPanel extends JPanel implements MouseListener, MouseMotionL
         setSoundMuted(true);
         setMusicMuted(true);
         circleBtn.disabled();
-        musicMutedBtn.disabled();
-        soundMutedBtn.disabled();
-        musicUnmutedBtn.disabled();
-        soundUnmutedBtn.disabled();
+        musicMutedBtn.setCmd("mute music");
+        soundMutedBtn.setCmd("mute sound");
+        musicUnmutedBtn.setCmd("mute music");
+        soundUnmutedBtn.setCmd("mute sound");
         slider.disabled();
         sect.add(musicMutedBtn);
         sect.add(musicUnmutedBtn);
@@ -192,10 +194,10 @@ public  class ConfirmPanel extends JPanel implements MouseListener, MouseMotionL
         }
         if(toDraged){
             sliderX = e.getX();
-            if(e.getX()<135)
-                sliderX = 135;
-            if(e.getX()>299)
-                sliderX = 299;
+            if(e.getX()<150)
+                sliderX = 150;
+            if(e.getX()>300)
+                sliderX = 300;
                 
             circleBtn.setLocal(sliderX, sliderY);
         }
@@ -257,14 +259,16 @@ public  class ConfirmPanel extends JPanel implements MouseListener, MouseMotionL
     private void musicClick(MouseEvent e){ 
         if(musicMutedBtn.isInclud(e.getX(), e.getY())){
             musicMuted =  !musicMuted;
-            setMusicMuted(musicMuted);      
+            setMusicMuted(musicMuted);  
+            musicMutedBtn.clicked(button);
         }
     }
     
     private void soundClick(MouseEvent e){ 
         if(soundMutedBtn.isInclud(e.getX(), e.getY())){
             soundMuted =  !soundMuted;
-            setSoundMuted(soundMuted);      
+            setSoundMuted(soundMuted);
+            musicMutedBtn.clicked(button);
         }
     }
     
@@ -280,10 +284,14 @@ public  class ConfirmPanel extends JPanel implements MouseListener, MouseMotionL
         }
     }
     
-    public int getSpeed(){        
-        return  (30) / (299-135) * (sliderX-135);        
+    public int getSpeed(){ 
+        return  180 * (sliderX-150)/ (300-150);       
     }
     
+    public void setSpeed(int speed){ 
+        sliderX =150 * (speed)/ (180) + 150 ;      
+    }
+     
     @Override
     public void mouseClicked(MouseEvent e) {        
         section.clicked(e.getX(), e.getY(), button);

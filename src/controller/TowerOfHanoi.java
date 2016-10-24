@@ -12,7 +12,7 @@ import java.awt.event.MouseListener;
 import javax.swing.SwingUtilities;
 import model.GameCommand;
 import view.GameFrame;
-import view.TowerPanel;
+import view.Sound;
 
 /**
  *
@@ -31,6 +31,7 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
     boolean soundMuted;
 
     private char currentFrame;
+    private final Sound clickSound;
     
     
     public TowerOfHanoi() {
@@ -39,10 +40,12 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
         frame.setGame(game.getTowerA(),game.getTowerB(),game.getTowerC(), game.getLastLevel());
         updateFrame();  
         frame.setListeners(this,this);
+        clickSound = new Sound("click");
     }
       
      @Override
     public void actionPerformed(ActionEvent e) {
+        clickSound.play();
         switch(e.getActionCommand()){
             case GameFrame.BACK:
                 back();
@@ -74,6 +77,12 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
             case GameFrame.SAVE:
                 save();
                 break;
+            case GameFrame.MUSIC:
+                musicMute();
+                break;
+            case GameFrame.SOUND:
+                soundMute();
+                break;
         }
     }
     
@@ -82,6 +91,7 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
         if(SwingUtilities.isRightMouseButton(e)){
             return;
         } 
+        
         switch(currentFrame){
             case LEVEL_FRAME:
                 chooseLevel(e);             
@@ -91,7 +101,7 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
                 break;
             case GAME_FRAME:
                 shifting(e);
-                System.out.println("game");                
+                //System.out.println("game");                
                 break;
         }
     }
@@ -112,11 +122,11 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
     
     private char getTowerName(MouseEvent e){
         switch (frame.getTowerName(e)){
-            case TowerPanel.TOWER_A:
+            case GameFrame.TOWER_A:
                 return GameCommand.TOWER_A;
-            case TowerPanel.TOWER_B:
+            case GameFrame.TOWER_B:
                 return GameCommand.TOWER_B;
-            case TowerPanel.TOWER_C:
+            case GameFrame.TOWER_C:
                 return GameCommand.TOWER_C;
         }
         return ' ';        
@@ -235,19 +245,32 @@ public class TowerOfHanoi implements MouseListener, ActionListener {
         if(game.redo()){
             updateFrame();
         }
-    }  
-    
-    
+    }          
     
     private void save() {
-        speed = frame.getSpeed();
-        musicMuted = frame.isMusicMuted();
-        soundMuted = frame.isSoundMuted();
-        frame.setSpeed(speed);
-        frame.showGame();
+        frame.setSpeed(speed = frame.getSpeed());
+        musicMute();
+        soundMute();
+        frame.showGame();        
         currentFrame = GAME_FRAME;
-        
     }
+    
+    private void musicMute() {
+        if(musicMuted = frame.isMusicMuted()){
+            Sound.muteMusic();
+        }else{
+            Sound.unMuteMusic();
+        }        
+    }
+    
+    private void soundMute() {
+        if(soundMuted = frame.isSoundMuted()){
+            Sound.muteSounds();
+        }else{
+            Sound.unMuteSounds();
+        }
+    }
+    
     @Override
     public void mousePressed(MouseEvent e) {        
     }

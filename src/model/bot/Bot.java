@@ -23,12 +23,14 @@ public class Bot {
     
     private final List<Integer>  [] grid;
     private int currentIndex;
+    private boolean isFreeDistin;
 
     public Bot(List<Integer>  towerA, List<Integer>  towerB, List<Integer>  towerC){
         grid = new List[3];
         grid[0] = towerA;
         grid[1] = towerB;
         grid[2] = towerC;
+        isFreeDistin =true;
         
     }
     
@@ -46,70 +48,81 @@ public class Bot {
         return disc;
     }
 
-    private void next() {
+    public void help() {
         initIndexes();
         int safe = 0;
-       /* boolean jumped;
-        for(int i=0;i<grid[from].size()-1;i++){
-            if(grid[from].get(i)+1<grid[from].get(i+1)){
-                disc=grid[from].get(i+1);
-                jumped = true;
-            }
-        }*/
         while(true){
             if(hasSupport()){
                 if(isFree()){
                     if(hasPlace()){
-                        System.out.println("yes move:"+disc+" from:"+from+" to:"+to);
                         break;
                     }
                     else{
-                        int j=0;
-                        while(grid[to].get(j)>disc)
-                            j++;
-                        currentIndex=j;
-                        to=3-to-from;
-                        from=3-to-from;
-                        disc = grid[from].get(currentIndex);
-                        System.out.print("noPlace!! ");
-                        System.out.println(disc+" from:"+from+" to:"+to);
+                        hasNoPlace();
+                        
                     }
                 }else{
-                    currentIndex++;
-                    disc=grid[from].get(currentIndex);
-                    to=3-from-to;
-                    System.out.println("noFree!!");
+                    isNoFree();
+                    
                 }
             }else{
-                System.out.println("---------- from:"+from+" to:"+to+" disc:"+disc);
-                from=3-from-to;
-                disc++;
-                currentIndex=grid[from].indexOf(disc);
-                System.out.println("---------- from:"+from+" to:"+to+" disc:"+disc+" ====>"+currentIndex);
-                System.out.println("noSupport!!");
+                hasNoSupport();                
             }
             safe++;
             if(safe>3375){
-              System.out.println("no!!");
               break;
             }
         }
     }
 
+    private void hasNoSupport() {
+        from=3-from-to;
+        disc++;
+        currentIndex=grid[from].indexOf(disc);
+    }
+
+    private void isNoFree() {
+        currentIndex++;
+        disc=grid[from].get(currentIndex);
+        to=3-from-to;
+    }
+
+    private void hasNoPlace() {
+        int j=0;
+        while(grid[to].get(j)>disc)
+            j++;
+        currentIndex=j;
+        to=3-to-from;
+        from=3-to-from;
+        disc = grid[from].get(currentIndex);
+    }
+
     private void initIndexes() {
-        if(grid[0].isEmpty()||(!grid[1].isEmpty()&&grid[1].get(0)>grid[0].get(0)))
-            from=1;
-        else
+        
+        int a = getAxeOfMaxDisc();
+        int x = getDisc(a,0);
+        int b = getAxeOfSecondMaxDisc();  
+        int y =  getDisc(b,0);
+        int c = 3-a-b;
+        
+        if(a==0){
             from = 0;
-        to = 2;
+            to = isFreeDistin?(x % 2 == y % 2?b:c):2;
+            
+        }else{
+            System.out.println("a!=0 "+a);
+            to = isFreeDistin?a:2;
+            from = isFreeDistin?b:1;
+        }
         currentIndex = 0;
-        disc=grid[from].get(0);
+        disc=getDisc(from,0);
+        System.out.println("================"+from+" to "+to);
     }
 
     private boolean hasSupport() {
-        System.out.println(currentIndex);
+        //System.out.println(currentIndex);
         if(currentIndex==-1){
-            System.out.println("#######################################");
+           System.out.println("#######################################");
            System.out.println(currentIndex);
            System.out.println(disc);
            System.out.println(from);
@@ -121,13 +134,13 @@ public class Bot {
                 grid[from].get(currentIndex-1)-1){            
             return true;
         }else{
-            System.out.println("no"+grid[from].get(currentIndex)+" "+grid[from].get(currentIndex-1));
+            //System.out.println("no"+grid[from].get(currentIndex)+" "+grid[from].get(currentIndex-1));
         }                     
         return grid[to].indexOf(grid[from].get(currentIndex)+1)>=0;
     }
 
     private boolean isFree() {        
-        return grid[from].size()==currentIndex+1||grid[from].size()==0;
+        return grid[from].size()==currentIndex+1||grid[from].isEmpty();
     }
 
     private boolean hasPlace() {
@@ -135,8 +148,51 @@ public class Bot {
         
     }
 
-    public void help() {
-        next();
+    private int getAxeOfMaxDisc() {
+        int a = getDisc(0,0);
+        int b = getDisc(1,0);
+        int c = getDisc(2,0);
+        if(a>b){
+            if(a>c){
+                return 0;
+            }
+            return 2;
+        }
+        if(b>c){
+            return 1;
+        }
+        return 2;
+    }
+
+    private int getAxeOfSecondMaxDisc() {
+        int a = getDisc(0,0);
+        int b = getDisc(1,0);
+        int c = getDisc(2,0);
+        
+        if(a>b){
+            if(b>c){
+                return 1;
+            }
+            if(c>a){
+              return 0;  
+            }
+            return 2;
+        }
+        if(c>b){
+            return 1;
+        }
+        if(c>a){
+            return 2;  
+        }
+        return 0;
+    }
+
+    private int getDisc(int a, int i) {
+        return grid[a].size()>i?grid[a].get(i):0;
+    }
+
+    public void setIsFreeDistin(boolean isFreeDistin) {
+        this.isFreeDistin = isFreeDistin;
     }
 
     
